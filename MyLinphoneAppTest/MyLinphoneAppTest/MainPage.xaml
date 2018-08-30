@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MyLinphoneAppTes"
+             x:Class="MyLinphoneAppTes.MainPage">
+
+    <StackLayout x:Name="stack_layout" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Orientation="Vertical" Spacing="15">
+        <Label x:Name="welcome" Text="Welcome to Linphone Xamarin!" HorizontalOptions="Center" />
+
+        <StackLayout x:Name="stack_registrar">
+            <Entry x:Name="username" Placeholder="Username" Text="" />
+            <Entry x:Name="password" Placeholder="Password" IsPassword="true" Text=""/>
+            <Entry x:Name="domain" Placeholder="Domain" Text="sip.linphone.org"/>
+            <Button x:Name="register" Text="Register" Clicked="OnRegisterClicked" HorizontalOptions="Center" />
+        </StackLayout>
+        <Label x:Name="registration_status" HorizontalOptions="Center" />
+
+        <Entry x:Name="address" Placeholder="Address" />
+        <Button x:Name="call" Text="Start Call" Clicked="OnCallClicked" HorizontalOptions="Center" />
+        <Label x:Name="call_status" HorizontalOptions="Center" />
+        <Button x:Name="mockButton" Text="Mock user, iternal test" Clicked="OnMockUserClicked" HorizontalOptions="Center" />
+        <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
+            
+        </StackLayout>
+    </StackLayout>
+
+</ContentPage>
