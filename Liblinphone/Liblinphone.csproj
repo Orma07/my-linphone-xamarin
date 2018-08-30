@@ -5,14 +5,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{EF6AC44E-E917-4B43-8A96-53BA1DFCE44A}</ProjectGuid>
-    <ProjectTypeGuids>{10368E6C-D01B-4462-8E8B-01FC667A7035};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TemplateGuid>{77efb91c-a7e9-4b0e-a7c5-31eeec3c6d46}</TemplateGuid>
+    <ProjectGuid>{9FA30DD4-613D-4A5F-9014-56AA8D0FE27B}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TemplateGuid>{9ef11e43-1701-4396-8835-8392d57abb70}</TemplateGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Liblinphone</RootNamespace>
-    <AssemblyName>Liblinphone</AssemblyName>
+    <RootNamespace>LibLinphone</RootNamespace>
+    <AssemblyName>LibLinphone</AssemblyName>
     <FileAlignment>512</FileAlignment>
+    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
   </PropertyGroup>
@@ -34,24 +36,32 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
+    <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Jars\AboutJars.txt" />
-    <None Include="Additions\AboutAdditions.txt" />
-    <LibraryProjectZip Include="liblinphone-sdk.aar" />
+    <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>
-    <TransformFile Include="Transforms\Metadata.xml" />
-    <TransformFile Include="Transforms\EnumFields.xml" />
-    <TransformFile Include="Transforms\EnumMethods.xml" />
+    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.Bindings.targets" />
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\drawable\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,5 +1,5 @@
-﻿using MyLinphoneAppTes.Interfaces;
-using MyLinphoneAppTest.Interfaces;
+﻿using LibLinphone.Interfaces;
+using LibLinphone.Views;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,11 +31,10 @@ namespace MyLinphoneAppTes
 
             call_status.Text = "Call state changed: " + StateOfCurrentCall;
 
-
-
-            if (StateOfCurrentCall == CallStatePCL.IncomingReceived)
+            if (StateOfCurrentCall == CallStatePCL.IncomingReceived || StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
             {
                 call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
+                LinphoneManager.SetViewCall(CurrentCall);
 
             }
    
@@ -52,6 +51,8 @@ namespace MyLinphoneAppTes
                 register.IsEnabled = false;
                 mockButton.IsVisible = false;
                 stack_registrar.IsVisible = false;
+                contentViewVideo.IsVisible = true;
+                contentViewVideo.Content = new LinphoneVideoView();
             }
         }
 
@@ -92,7 +93,7 @@ namespace MyLinphoneAppTes
                 LinphoneManager.TerminateAllCalls();
                 call.Text = "Start Call";
             }
-            else if(StateOfCurrentCall == CallStatePCL.IncomingReceived)
+            else if(StateOfCurrentCall == CallStatePCL.IncomingReceived || StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
             {
                 LinphoneManager.AcceptCall();
                 call.Text = "Terminate";

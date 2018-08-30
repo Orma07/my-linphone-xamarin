@@ -6,7 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-using MyLinphoneAppTes.Droid.LinphoneUtils;
+using LibLinphone.Droid.LinphoneUtils;
 
 namespace MyLinphoneAppTes.Droid
 {

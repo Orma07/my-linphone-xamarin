@@ -19,9 +19,11 @@
         <Button x:Name="call" Text="Start Call" Clicked="OnCallClicked" HorizontalOptions="Center" />
         <Label x:Name="call_status" HorizontalOptions="Center" />
         <Button x:Name="mockButton" Text="Mock user, iternal test" Clicked="OnMockUserClicked" HorizontalOptions="Center" />
-        <StackLayout Orientation="Horizontal" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand">
-            
-        </StackLayout>
+        <ContentView x:Name="contentViewVideo"
+                     IsVisible="False"
+                     HorizontalOptions="FillAndExpand"
+                     VerticalOptions="FillAndExpand">
+        </ContentView>
     </StackLayout>
 
 </ContentPage>
