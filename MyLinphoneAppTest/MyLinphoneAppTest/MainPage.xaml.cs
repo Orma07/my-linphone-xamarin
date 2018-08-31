@@ -13,9 +13,10 @@ namespace MyLinphoneAppTes
 	public partial class MainPage : ContentPage, ILinphneListenner
 	{
         private ILinphoneManager LinphoneManager;
-        private CallPCL CurrentCall;
         private bool MockUser;
+        private CallPCL CurrentCall;
         private CallStatePCL StateOfCurrentCall;
+        //Kalpa
         public MainPage()
 		{
 			InitializeComponent();
