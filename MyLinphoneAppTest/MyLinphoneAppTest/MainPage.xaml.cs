@@ -31,13 +31,20 @@ namespace MyLinphoneAppTes
 
             call_status.Text = "Call state changed: " + StateOfCurrentCall;
 
-            if (StateOfCurrentCall == CallStatePCL.IncomingReceived || StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
+            if (StateOfCurrentCall == CallStatePCL.IncomingReceived)
             {
                 call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
                 LinphoneManager.SetViewCall(CurrentCall);
 
             }
-   
+            else if(StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
+            {
+                //LinphoneManager.SetViewCall(CurrentCall);
+                call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
+            }
+          
+
+
         }
 
         public void OnRegistration(RegistrationStatePCL state, string mesage)
@@ -99,7 +106,7 @@ namespace MyLinphoneAppTes
                 call.Text = "Terminate";
                 mockButton.IsVisible = false;
             }
-            else
+            else if(call.Text == "Start Call")
             {
                 if (!MockUser)
                 {
