@@ -334,7 +334,7 @@ namespace LibLinphone.Droid.LinphoneUtils
         {
             CallPCL call = new CallPCL
             {
-                UsernameCaller = lcall.ToAddress.Username
+                UsernameCaller = lcall.RemoteAddress.Username
             };
             foreach (var listenner in LinphoneListenners)
             {

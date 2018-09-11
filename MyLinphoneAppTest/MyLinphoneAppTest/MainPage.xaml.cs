@@ -43,6 +43,10 @@ namespace MyLinphoneAppTes
                 //LinphoneManager.SetViewCall(CurrentCall);
                 call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
             }
+            else if(StateOfCurrentCall == CallStatePCL.StreamsRunning)
+            {
+                LinphoneManager.SetViewCallOutgoing(CurrentCall);
+            }
           
 
 
