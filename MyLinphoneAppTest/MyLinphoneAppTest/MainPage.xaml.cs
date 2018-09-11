@@ -40,12 +40,19 @@ namespace MyLinphoneAppTes
             }
             else if(StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
             {
-                //LinphoneManager.SetViewCall(CurrentCall);
                 call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
             }
             else if(StateOfCurrentCall == CallStatePCL.StreamsRunning)
             {
-                LinphoneManager.SetViewCallOutgoing(CurrentCall);
+                call.Text = "Terminate";
+                if (!CurrentCall.IsVideoEnabled)
+                {
+                    LinphoneManager.SetViewCallOutgoing(CurrentCall);
+                }
+            }else if (StateOfCurrentCall == CallStatePCL.Released || StateOfCurrentCall == CallStatePCL.End ||
+                StateOfCurrentCall == CallStatePCL.Released)
+            {
+                call.Text = "Start Call";
             }
           
 
@@ -103,12 +110,10 @@ namespace MyLinphoneAppTes
             if (StateOfCurrentCall == CallStatePCL.StreamsRunning)
             {
                 LinphoneManager.TerminateAllCalls();
-                call.Text = "Start Call";
             }
             else if(StateOfCurrentCall == CallStatePCL.IncomingReceived || StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
             {
                 LinphoneManager.AcceptCall();
-                call.Text = "Terminate";
                 mockButton.IsVisible = false;
             }
             else if(call.Text == "Start Call")
