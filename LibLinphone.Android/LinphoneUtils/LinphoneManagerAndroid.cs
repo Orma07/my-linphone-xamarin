@@ -138,7 +138,15 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         public void TerminateAllCalls()
         {
-            linphoneCore.TerminateAllCalls();
+            try
+            {
+                if (linphoneCore.CurrentCall != null)
+                    linphoneCore.TerminateAllCalls();
+            }
+            catch(Exception ex)
+            {
+                Log("terminate call failed");
+            }
         }
 
 
