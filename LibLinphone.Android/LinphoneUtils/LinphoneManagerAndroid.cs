@@ -90,12 +90,13 @@ namespace LibLinphone.Droid.LinphoneUtils
 
             if (linphoneCore.CallsNb > 0)
             {
-                Call currentCall = linphoneCore.Calls.Where(lcall => lcall.ToAddress.Username == call.UsernameCaller).FirstOrDefault();
+                Call currentCall = linphoneCore.Calls.Where(lcall => lcall.RemoteAddress.Username == call.UsernameCaller).FirstOrDefault();
                 if (currentCall != null)
                 {
                     linphoneCore.VideoDisplayEnabled = true;
                     linphoneCore.VideoAdaptiveJittcompEnabled = true;
                     CallParams param = linphoneCore.CreateCallParams(currentCall);
+                   
                     param.VideoEnabled = true;
                     param.VideoDirection = MediaDirection.RecvOnly;
                     param.AudioDirection = MediaDirection.SendRecv;
@@ -114,7 +115,7 @@ namespace LibLinphone.Droid.LinphoneUtils
         {
             if (linphoneCore.CallsNb > 0)
             {
-                Call currentCall = linphoneCore.Calls.Where(lcall => lcall.ToAddress.Username == call.UsernameCaller).FirstOrDefault();
+                Call currentCall = linphoneCore.Calls.Where(lcall => lcall.RemoteAddress.Username == call.UsernameCaller).FirstOrDefault();
                 if (currentCall != null)
                 {
                     linphoneCore.VideoDisplayEnabled = true;
@@ -124,6 +125,7 @@ namespace LibLinphone.Droid.LinphoneUtils
                     param.VideoDirection = MediaDirection.RecvOnly;
                     param.AudioDirection = MediaDirection.SendRecv;
                     linphoneCore.UpdateCall(currentCall, param);
+                    
                 }
                 else
                 {
@@ -334,11 +336,12 @@ namespace LibLinphone.Droid.LinphoneUtils
         {
             CallPCL call = new CallPCL
             {
-                UsernameCaller = lcall.ToAddress.Username
+                UsernameCaller = lcall.RemoteAddress.Username
             };
+            CallParams param = linphoneCore.CreateCallParams(lcall);
             foreach (var listenner in LinphoneListenners)
             {
-                listenner.OnCall(new CallArgs(call, (int)state, message, call.IsVideoEnabled));
+                listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
             }
 
         }

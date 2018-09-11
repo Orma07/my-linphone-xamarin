@@ -9,6 +9,7 @@ using Android.Graphics;
 using Android.Media;
 using Android.OS;
 using Android.Runtime;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
 using LibLinphone.Droid.LinphoneUtils;
@@ -34,6 +35,10 @@ namespace LibLinphone.Droid.LinphoneUtils
         private void InitAndroidView(int width, int height)
         {
             captureCamera = new Org.Linphone.Mediastream.Video.Display.GL2JNIView(Application.Context);
+            var displayMetrics = new DisplayMetrics();
+            var ctx = Application.Context;
+            var windowManager = ctx.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
+            windowManager.DefaultDisplay.GetMetrics(displayMetrics);
             //var currentActivity = (Activity)Forms.Context;
             //var Display = currentActivity.WindowManager.DefaultDisplay;
             //var size = new Android.Graphics.Point();
@@ -41,7 +46,7 @@ namespace LibLinphone.Droid.LinphoneUtils
             //int width = (int)(Width * scaleFactor);
             //int height = (int)(Height * scaleFactor);
             captureCamera.Holder.SetFixedSize(240, 320);
-            ViewGroup.LayoutParams cparams = new ViewGroup.LayoutParams(320, 240);
+            ViewGroup.LayoutParams cparams = new ViewGroup.LayoutParams((int)(width / (1f/ displayMetrics.Density)), (int)(height / (1f / displayMetrics.Density)));
             captureCamera.LayoutParameters = cparams;
 
             androidView = new AndroidVideoWindowImpl(captureCamera, null, null);
