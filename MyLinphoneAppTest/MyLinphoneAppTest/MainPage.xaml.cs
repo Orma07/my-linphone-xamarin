@@ -22,7 +22,7 @@ namespace MyLinphoneAppTes
 			InitializeComponent();
             LinphoneManager = DependencyService.Get<ILinphoneManager>();
             LinphoneManager.AddLinphoneListenner(this);
-		}
+        }
 
         public void OnCall(CallArgs e)
         {

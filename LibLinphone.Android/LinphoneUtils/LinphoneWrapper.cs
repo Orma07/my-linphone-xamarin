@@ -11782,8 +11782,81 @@ namespace Linphone
 				
 			}
 		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-		static extern char linphone_core_echo_cancellation_enabled(IntPtr thiz);
+
+
+        #region Beamforming
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern char linphone_core_beamforming_enabled(IntPtr thiz);
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern void linphone_core_enable_beamforming(IntPtr thiz, char val);
+
+        /// <summary>
+		/// Returns true if beamforming is enabled. 
+		/// </summary>
+		public bool BeamformingEnabled
+        {
+            get
+            {
+                return linphone_core_beamforming_enabled(nativePtr) != 0;
+            }
+            set
+            {
+                linphone_core_enable_beamforming(nativePtr, value ? (char)1 : (char)0);
+
+            }
+        }
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern float linphone_core_get_beamforming_angle_deg(IntPtr thiz);
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern void linphone_core_set_beamforming_angle_deg(IntPtr thiz, float val);
+        /// <summary>
+        /// beamforming_angle_deg=0 for mts 4 and mts 7
+        /// </summary>
+        public float BeamformingAngleDeg
+        {
+            get
+            {
+                return linphone_core_get_beamforming_angle_deg(nativePtr);
+            }
+            set
+            {
+                linphone_core_set_beamforming_angle_deg(nativePtr, value);
+
+            }
+        }
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern float linphone_core_get_beamforming_mic_dist_mm(IntPtr thiz);
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern void linphone_core_set_beamforming_mic_dist_mm(IntPtr thiz, float val);
+
+        /// <summary>
+        /// beamforming_mic_dist_mm=74 for mts 4
+        /// beamforming_mic_dist_mm =184 for mts 7
+        /// </summary>
+        public float BeamformingMicDist        {
+            get
+            {
+                return linphone_core_get_beamforming_mic_dist_mm(nativePtr);
+            }
+            set
+            {
+                linphone_core_set_beamforming_mic_dist_mm(nativePtr, value);
+
+            }
+        }
+
+
+        #endregion
+
+
+
+        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+        static extern char linphone_core_echo_cancellation_enabled(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_core_enable_echo_cancellation(IntPtr thiz, char val);
 

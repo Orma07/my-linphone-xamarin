@@ -19,3 +19,4 @@
   <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 	<application android:label="MyLinphoneAppTes.Android"></application>
 </manifest>
+ 
