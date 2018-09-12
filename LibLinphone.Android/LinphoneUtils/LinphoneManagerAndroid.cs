@@ -298,7 +298,8 @@ namespace LibLinphone.Droid.LinphoneUtils
                 //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 
                 //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc
 
-                linphoneCore.BeamformingMicDist = 74f;
+               //linphoneCore.BeamformingMicDist = 74f;
+               //linphoneCore.BeamformingEnabled = true;
 
 
             }
