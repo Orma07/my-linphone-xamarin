@@ -136,16 +136,27 @@ namespace LibLinphone.Droid.LinphoneUtils
             }
         }
 
+        private static int nRetryTerminateCalls = 0;
+
         public void TerminateAllCalls()
         {
             try
             {
                 if (linphoneCore.CurrentCall != null)
                     linphoneCore.TerminateAllCalls();
+                nRetryTerminateCalls = 0;
             }
             catch(Exception ex)
             {
-                Log("terminate call failed");
+                nRetryTerminateCalls++;
+                if (nRetryTerminateCalls < 3)
+                {
+                    TerminateAllCalls();
+                }
+                else
+                {
+                    Log("terminate call failed after 3 attempts");
+                }
             }
         }
 
