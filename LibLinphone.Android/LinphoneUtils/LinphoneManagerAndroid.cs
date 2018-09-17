@@ -273,7 +273,7 @@ namespace LibLinphone.Droid.LinphoneUtils
                 //linphoneCore.rin
                 linphoneCore.NetworkReachable = true;
 
-                linphoneCore.RingDuringIncomingEarlyMedia = true;
+                linphoneCore.RingDuringIncomingEarlyMedia = false;
 
                 //LinphoneCore.RootCa = DeviceInfoMobile.CaPath;
 
