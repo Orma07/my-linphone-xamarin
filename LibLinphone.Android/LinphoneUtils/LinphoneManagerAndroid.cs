@@ -366,7 +366,14 @@ namespace LibLinphone.Droid.LinphoneUtils
             CallParams param = linphoneCore.CreateCallParams(lcall);
             foreach (var listenner in LinphoneListenners)
             {
-                listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
+                try
+                {
+                    listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
+                }
+                catch (Exception ex)
+                {
+                    Log("error with listenner, OnCall");
+                }
             }
 
         }
@@ -441,7 +448,14 @@ namespace LibLinphone.Droid.LinphoneUtils
             {
                 foreach (var listenner in LinphoneListenners)
                 {
-                    listenner.OnRegistration((RegistrationStatePCL)state, message);
+                    try
+                    {
+                        listenner.OnRegistration((RegistrationStatePCL)state, message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("error with listenner, OnRegistration");
+                    }
                 }
             }
         }
@@ -532,12 +546,26 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         public void AddLinphoneListenner(ILinphneListenner linphneListenner)
         {
-            LinphoneListenners.Add(linphneListenner);
+            try
+            {
+                LinphoneListenners.Add(linphneListenner);
+            }
+            catch (Exception ex)
+            {
+                Log("error with listenner, Add");
+            }
         }
 
         public void RemoveLinphoneListenner(ILinphneListenner linphneListenner)
         {
-            LinphoneListenners.Remove(linphneListenner);
+            try
+            {
+                LinphoneListenners.Remove(linphneListenner);
+            }
+            catch (Exception ex)
+            {
+                Log("error with listenner, Remove");
+            }
         }
 
 
