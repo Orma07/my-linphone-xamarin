@@ -164,6 +164,7 @@ namespace LibLinphone.Droid.LinphoneUtils
         public LinphoneManagerAndroid()
         {
             InitLinphone();
+            
         }
 
 
@@ -248,17 +249,27 @@ namespace LibLinphone.Droid.LinphoneUtils
 
             InitLinphone();
             LinphoneCoreIterateAsync();
+
+            
+
+
         }
 
 
 
         public static void InitLinphone()
         {
+            
+
             if (linphoneCore == null)
             {
                 Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
                 CoreListener listener = Factory.Instance.CreateCoreListener();
                 LinphoneListenners = new List<ILinphneListenner>();
+
+                LoggingService.Instance.LogLevel = LogLevel.Debug;
+                LoggingService.Instance.Listener.OnLogMessageWritten += OnLog;
+
 
 
                 // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
@@ -266,18 +277,13 @@ namespace LibLinphone.Droid.LinphoneUtils
                 // Required to be able to store logs as file
                 Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
 
-                LoggingService.Instance.LogLevel = LogLevel.Debug;
-                LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+
 
                 listener.OnGlobalStateChanged = OnGlobal;
-                //linphoneCore.rin
                 linphoneCore.NetworkReachable = true;
 
                 linphoneCore.RingDuringIncomingEarlyMedia = false;
 
-                //LinphoneCore.RootCa = DeviceInfoMobile.CaPath;
-
-                //Log(linphoneCore.roo)
 
                 linphoneCore.VideoCaptureEnabled = false;
                 linphoneCore.VideoDisplayEnabled = true;
@@ -306,18 +312,22 @@ namespace LibLinphone.Droid.LinphoneUtils
 
                 linphoneCore.AddListener(CoreListener);
 
+                
+
                 //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 
                 //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc
 
-              // linphoneCore.BeamformingMicDist = 184f;
-              // linphoneCore.BeamformingAngleDeg = 0;
-              // linphoneCore.BeamformingEnabled = true;
+                 linphoneCore.BeamformingMicDist = 500f;
+                 linphoneCore.BeamformingAngleDeg = 45;
+                 linphoneCore.BeamformingEnabled = true;
 
 
             }
         }
 
-        private static void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
+       
+
+        public static void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
         {
             string now = DateTime.Now.ToString("hh:mm:ss");
             string log = now + " [";
