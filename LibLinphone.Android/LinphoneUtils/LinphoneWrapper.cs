@@ -14813,7 +14813,13 @@ namespace Linphone
 		/// </summary>
 		public void Iterate()
 		{
-			linphone_core_iterate(nativePtr);
+            try
+            {
+                linphone_core_iterate(nativePtr);
+            }catch(Exception e)
+            {
+
+            }
 			
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]

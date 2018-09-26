@@ -257,19 +257,22 @@ namespace LibLinphone.Droid.LinphoneUtils
             if (linphoneCore == null)
             {
                 Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
-                CoreListener listener = Factory.Instance.CreateCoreListener();
+                CoreListener = Factory.Instance.CreateCoreListener();
                 LinphoneListenners = new List<ILinphneListenner>();
 
 
                 // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
-                linphoneCore = Factory.Instance.CreateCore(listener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
+                linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
                 // Required to be able to store logs as file
                 Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
+                Core.EnableLogCollection(LogCollectionState.Enabled);
+                UploadLogCommand();
 
                 LoggingService.Instance.LogLevel = LogLevel.Debug;
                 LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
-                listener.OnGlobalStateChanged = OnGlobal;
+                CoreListener.OnGlobalStateChanged = OnGlobal;
+                CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
                 //linphoneCore.rin
                 linphoneCore.NetworkReachable = true;
 
@@ -295,7 +298,6 @@ namespace LibLinphone.Droid.LinphoneUtils
 
                 LogCodecs();
 
-                CoreListener = Factory.Instance.CreateCoreListener();
                 CoreListener.OnCallStateChanged = OnCall;
                 CoreListener.OnCallStatsUpdated = OnStats;
                 CoreListener.OnRegistrationStateChanged = OnRegistration;
@@ -315,6 +317,23 @@ namespace LibLinphone.Droid.LinphoneUtils
 
 
             }
+        }
+
+        private static async Task UploadLogCommand()
+        {
+            while (true)
+            {
+                linphoneCore.UploadLogCollection();
+                await Task.Delay(TimeSpan.FromSeconds(60));
+            }
+        }
+
+        private static void OnLogUpload(Core lc, CoreLogCollectionUploadState state, string info)
+        {
+            if (state == CoreLogCollectionUploadState.Delivered)
+                Log($"linphone log upload, link -> {info}");
+            else
+                Log($"linphone log upload state -> {state}");
         }
 
         private static void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
@@ -360,22 +379,29 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         private static void OnCall(Core lc, Call lcall, CallState state, string message)
         {
-            CallPCL call = new CallPCL
+            try
             {
-                UsernameCaller = lcall.RemoteAddress.Username
-            };
-            CallParams param = linphoneCore.CreateCallParams(lcall);
-            foreach (var listenner in LinphoneListenners)
-            {
-                try
+                CallPCL call = new CallPCL
                 {
-                    listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
-                }
-                catch (Exception ex)
+                    UsernameCaller = lcall.RemoteAddress.Username
+                };
+                CallParams param = linphoneCore.CreateCallParams(lcall);
+
+                lock (LinphoneListenners)
                 {
-                    Log("error with listenner, OnCall");
+                    foreach (var listenner in LinphoneListenners)
+                    {
+                        try
+                        {
+                            listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("error with listenner, OnCall");
+                        }
+                    }
                 }
-            }
+            }catch(Exception ex) { }
 
         }
 
@@ -445,17 +471,20 @@ namespace LibLinphone.Droid.LinphoneUtils
         private static void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
         {
             Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}");
-            if(LinphoneListenners != null)
+            lock (LinphoneListenners)
             {
-                foreach (var listenner in LinphoneListenners)
+                if (LinphoneListenners != null)
                 {
-                    try
+                    foreach (var listenner in LinphoneListenners)
                     {
-                        listenner.OnRegistration((RegistrationStatePCL)state, message);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log("error with listenner, OnRegistration");
+                        try
+                        {
+                            listenner.OnRegistration((RegistrationStatePCL)state, message);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("error with listenner, OnRegistration");
+                        }
                     }
                 }
             }
@@ -549,7 +578,10 @@ namespace LibLinphone.Droid.LinphoneUtils
         {
             try
             {
-                LinphoneListenners.Add(linphneListenner);
+                lock (LinphoneListenners)
+                {
+                    LinphoneListenners.Add(linphneListenner);
+                }
             }
             catch (Exception ex)
             {
@@ -561,7 +593,10 @@ namespace LibLinphone.Droid.LinphoneUtils
         {
             try
             {
-                LinphoneListenners.Remove(linphneListenner);
+                lock (LinphoneListenners)
+                {
+                    LinphoneListenners.Remove(linphneListenner);
+                }
             }
             catch (Exception ex)
             {
