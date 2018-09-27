@@ -11,3 +11,10 @@ sip_port=0
 sip_udp_port=0
 sip_tcp_port=-1
 sip_tls_port=0
+
+[sound]
+echocancellation=1
+ec_filter=MSWebRTCAEC
+beamforming=1
+beamforming_mic_dist_mm=74
+beamforming_angle_deg=0

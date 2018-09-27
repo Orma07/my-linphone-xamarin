@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Android.App;
 using Android.Content;
 using Android.Graphics;
 using Android.Media;
-using Android.OS;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
-using Android.Widget;
 using LibLinphone.Droid.LinphoneUtils;
 using LibLinphone.Views;
 using Org.Linphone.Mediastream.Video;
@@ -43,10 +38,10 @@ namespace LibLinphone.Droid.LinphoneUtils
             //var Display = currentActivity.WindowManager.DefaultDisplay;
             //var size = new Android.Graphics.Point();
             //Display.GetSize(size);
-            //int width = (int)(Width * scaleFactor);
-            //int height = (int)(Height * scaleFactor);
-            captureCamera.Holder.SetFixedSize(240, 320);
-            ViewGroup.LayoutParams cparams = new ViewGroup.LayoutParams((int)(width / (1f/ displayMetrics.Density)), (int)(height / (1f / displayMetrics.Density)));
+            int width_android = (int)(width / (1f / displayMetrics.Density));
+            int height_android = (int)(height / (1f / displayMetrics.Density));
+            captureCamera.Holder.SetFixedSize(width_android, height_android);
+            ViewGroup.LayoutParams cparams = new ViewGroup.LayoutParams(width_android, height_android);
             captureCamera.LayoutParameters = cparams;
 
             androidView = new AndroidVideoWindowImpl(captureCamera, null, null);
