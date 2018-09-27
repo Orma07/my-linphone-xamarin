@@ -47,6 +47,7 @@ namespace LibLinphone.Android.LinphoneUtils
         {
 
             Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
+            Log($"Linphone version {Core.Version}");
             CoreListener = Factory.Instance.CreateCoreListener();
             LinphoneListenners = new List<ILinphneListenner>();
 
@@ -76,7 +77,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
             Log($"used transports is {linphoneCore.TransportsUsed}");
-            Log($"Linphone version {Core.Version}");
+            
 
             LogCodecs();
 
