@@ -7,6 +7,7 @@ using Android.Media;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
+using LibLinphone.Android.LinphoneUtils;
 using LibLinphone.Droid.LinphoneUtils;
 using LibLinphone.Views;
 using Org.Linphone.Mediastream.Video;
@@ -50,8 +51,8 @@ namespace LibLinphone.Droid.LinphoneUtils
             captureCamera.SetZOrderMediaOverlay(true);
 
 
-            LinphoneManagerAndroid.LinphoneCore.NativeVideoWindowId = androidView.Handle;
-            LinphoneManagerAndroid.LinphoneCore.VideoDisplayEnabled = true;
+            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = androidView.Handle;
+            LinphoneEngineAndroid.Instance.LinphoneCore.VideoDisplayEnabled = true;
 
 
         }
