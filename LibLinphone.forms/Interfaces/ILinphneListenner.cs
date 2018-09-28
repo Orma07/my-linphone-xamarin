@@ -5,10 +5,16 @@ using System.Text;
 
 namespace LibLinphone.Interfaces
 {
-    public interface ILinphneListenner
+    public interface ILinphoneListener
     {
         void OnRegistration(RegistrationStatePCL statePCL, string message);
+        void OnError(ErrorTypes type);
         void OnCall(CallArgs args);
+    }
+
+    public enum ErrorTypes
+    {
+        CoreIterateFailed
     }
 
     /// <summary>

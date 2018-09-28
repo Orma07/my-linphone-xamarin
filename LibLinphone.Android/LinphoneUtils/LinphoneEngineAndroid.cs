@@ -23,7 +23,7 @@ namespace LibLinphone.Android.LinphoneUtils
     public class LinphoneEngineAndroid
     {
         private CoreListener CoreListener;
-        public List<ILinphneListenner> LinphoneListenners { get; set; }
+        public List<ILinphoneListener> LinphoneListeners { get; set; }
         const int PERMISSIONS_REQUEST = 101;
 
         public static string RcPath { get; private set; }
@@ -49,7 +49,7 @@ namespace LibLinphone.Android.LinphoneUtils
             Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
             Log($"Linphone version {Core.Version}");
             CoreListener = Factory.Instance.CreateCoreListener();
-            LinphoneListenners = new List<ILinphneListenner>();
+            LinphoneListeners = new List<ILinphoneListener>();
 
 
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
@@ -381,13 +381,13 @@ namespace LibLinphone.Android.LinphoneUtils
                 };
                 CallParams param = linphoneCore.CreateCallParams(lcall);
 
-                lock (LinphoneListenners)
+                lock (LinphoneListeners)
                 {
-                    for (int i=0; i<LinphoneListenners.Count; i++)
+                    for (int i=0; i<LinphoneListeners.Count; i++)
                     {
                         try
                         {
-                            var listenner = LinphoneListenners[i];
+                            var listenner = LinphoneListeners[i];
                             listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
                         }
                         catch (Exception ex)
@@ -454,9 +454,30 @@ namespace LibLinphone.Android.LinphoneUtils
 
                 Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
                 {
-                    //Log("JobScheduler iteration");
-                    LinphoneCore.Iterate();
-                    // GC.Collect();
+                    try
+                    {
+                        //Log("JobScheduler iteration");
+                        LinphoneCore.Iterate();
+                    }
+                    catch
+                    {
+                        Log("WARNING: Iterate() - linphonoeCore Exception Managed");
+                        for (int i = 0; i < LinphoneListeners.Count; i++)
+                        {
+                            try
+                            {
+                                var listener = LinphoneListeners[i];
+                                listener.OnError(ErrorTypes.CoreIterateFailed);
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                Log("error with listenner, OnError");
+                            }
+                        }
+
+                    }
+             
 
                 });
 
@@ -467,15 +488,16 @@ namespace LibLinphone.Android.LinphoneUtils
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
         {
             Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}");
-            lock (LinphoneListenners)
+            lock (LinphoneListeners)
             {
-                if (LinphoneListenners != null)
+                if (LinphoneListeners != null)
                 {
-                    foreach (var listenner in LinphoneListenners)
+                    for (int i = 0; i < LinphoneListeners.Count; i++)
                     {
                         try
                         {
-                            listenner.OnRegistration((RegistrationStatePCL)state, message);
+                            var listener = LinphoneListeners[i];
+                            listener.OnRegistration((RegistrationStatePCL)state, message);
                         }
                         catch (Exception ex)
                         {
@@ -570,13 +592,13 @@ namespace LibLinphone.Android.LinphoneUtils
 
 
 
-        public void AddLinphoneListenner(ILinphneListenner linphneListenner)
+        public void AddLinphoneListenner(ILinphoneListener linphneListenner)
         {
             try
             {
-                lock (LinphoneListenners)
+                lock (LinphoneListeners)
                 {
-                    LinphoneListenners.Add(linphneListenner);
+                    LinphoneListeners.Add(linphneListenner);
                 }
             }
             catch (Exception ex)
@@ -585,13 +607,13 @@ namespace LibLinphone.Android.LinphoneUtils
             }
         }
 
-        public void RemoveLinphoneListenner(ILinphneListenner linphneListenner)
+        public void RemoveLinphoneListenner(ILinphoneListener linphneListenner)
         {
             try
             {
-                lock (LinphoneListenners)
+                lock (LinphoneListeners)
                 {
-                    LinphoneListenners.Remove(linphneListenner);
+                    LinphoneListeners.Remove(linphneListenner);
                 }
             }
             catch (Exception ex)
