@@ -81,15 +81,15 @@ namespace LibLinphone.Android.LinphoneUtils
 
             LogCodecs();
 
-            CoreListener.OnCallStateChanged += OnCall;
-            CoreListener.OnCallStatsUpdated += OnStats;
-            CoreListener.OnRegistrationStateChanged += OnRegistration;
+            CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnCallStatsUpdated = OnStats;
+            CoreListener.OnRegistrationStateChanged = OnRegistration;
 
-            CoreListener.OnConfiguringStatus += OnConfigurationStatus;
+            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
             linphoneCore.EchoCancellationEnabled = true;
 
-            linphoneCore.AddListener(CoreListener);
+           // linphoneCore.AddListener(CoreListener);
 
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 
             //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc
@@ -383,10 +383,11 @@ namespace LibLinphone.Android.LinphoneUtils
 
                 lock (LinphoneListenners)
                 {
-                    foreach (var listenner in LinphoneListenners)
+                    for (int i=0; i<LinphoneListenners.Count; i++)
                     {
                         try
                         {
+                            var listenner = LinphoneListenners[i];
                             listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
                         }
                         catch (Exception ex)
