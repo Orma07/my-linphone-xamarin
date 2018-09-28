@@ -621,6 +621,21 @@ namespace LibLinphone.Android.LinphoneUtils
                 Log("error with listenner, Remove");
             }
         }
+        
+        public void RemoveAllLinphoneListener()
+        {
+            try
+            {
+                lock (LinphoneListeners)
+                {
+                    LinphoneListeners.Clear();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log("error with listenner, Remove All");
+            }
+        }
 
 
         #endregion

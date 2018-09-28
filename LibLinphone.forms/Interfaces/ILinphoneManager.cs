@@ -10,6 +10,7 @@ namespace LibLinphone.Interfaces
         void SetViewCallOutgoing(CallPCL call);
         void AddLinphoneListenner(ILinphoneListener linphneListenner);
         void RemoveLinphoneListenner(ILinphoneListener linphneListenner);
+        void RemoveAllListeners();
         /// <summary>
         /// 
         /// </summary>

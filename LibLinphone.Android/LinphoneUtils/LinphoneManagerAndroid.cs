@@ -25,6 +25,8 @@ namespace LibLinphone.Droid.LinphoneUtils
     public class LinphoneManagerAndroid : ILinphoneManager
     {
         LinphoneEngineAndroid LinphoneEngine;
+        
+
         public bool AcceptCall()
         {
             return LinphoneEngine.AcceptCall();
@@ -68,6 +70,11 @@ namespace LibLinphone.Droid.LinphoneUtils
         public void RemoveLinphoneListenner(ILinphoneListener linphneListenner)
         {
             LinphoneEngine.RemoveLinphoneListenner(linphneListenner);
+        }
+        
+        public void RemoveAllListeners()
+        {
+            LinphoneEngine.RemoveAllLinphoneListener();
         }
 
         public void SetMicValue(bool value)
