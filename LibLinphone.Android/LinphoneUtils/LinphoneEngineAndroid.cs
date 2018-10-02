@@ -151,7 +151,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     linphoneCore.InviteAddress(addr);
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 Log($"CallSip()_Android - {username} is invalid username");
             }
