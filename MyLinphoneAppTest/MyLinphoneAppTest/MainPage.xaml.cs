@@ -22,7 +22,7 @@ namespace MyLinphoneAppTes
 			InitializeComponent();
             LinphoneManager = DependencyService.Get<ILinphoneManager>();
             LinphoneManager.AddLinphoneListenner(this);
-		}
+        }
 
         public void OnCall(CallArgs e)
         {
@@ -77,13 +77,13 @@ namespace MyLinphoneAppTes
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241512840382.ipvdesdev.vimar.cloud";
-            var pwd = "_zeRaomqYkQyhPYOb5CUItSvnt6GUiLa";
-            var usr = "60002";
+            var domain = "f8dc7a13b724.f8dc7a13b7241516390701.ipvdesdev.vimar.cloud";
+            var pwd = "mSEQpDi438z41nUTbWbPI_jNR6TIoLZ5";
+            var usr = "60005";
             string imei = "imei";
             string myName = "myName";
-            string serverAddr = "192.168.1.0";
-            string routeAddr = "192.168.1.0";
+            string serverAddr = "192.168.1.5";
+            string routeAddr = "192.168.1.5";
            
             if (!MockUser)
             {
