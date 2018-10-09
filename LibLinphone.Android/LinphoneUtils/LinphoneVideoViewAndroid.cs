@@ -50,7 +50,7 @@ namespace LibLinphone.Droid.LinphoneUtils
             captureCamera.SetZOrderOnTop(false);
             captureCamera.SetZOrderMediaOverlay(true);
 
-
+            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
             LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = androidView.Handle;
             LinphoneEngineAndroid.Instance.LinphoneCore.VideoDisplayEnabled = true;
 

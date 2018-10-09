@@ -146,6 +146,56 @@ namespace MyLinphoneAppTes
                 isOutgoingCall = true;
             }
         }
+        private Task taskRun = null;
+
+        private void OnStartTestClicked(object sender, EventArgs e)
+        {
+           
+            string toCall = "55101";
+            if (call.IsEnabled)
+            {
+                TestButton.Text = "Stop";
+                call.IsEnabled = false;
+                taskRun = new Task(async () =>
+                {
+                    while (true)
+                    {
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            contentViewVideo.IsVisible = true;
+                            contentViewVideo.Content = new LinphoneVideoView();
+                            LinphoneManager.CallSip(toCall);
+                            isOutgoingCall = true;
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(8));
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            LinphoneManager.TerminateAllCalls();
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(4));
+                    }
+                    
+                });
+
+                taskRun.Start();
+            }
+            else
+            {
+                if(taskRun != null)
+                {
+                    taskRun.Dispose();
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        call.IsEnabled = true;
+                        TestButton.Text = "Start test";
+                    });
+              
+                }
+            }
+
+        }
+
+
 
         private void OnMockUserClicked(object sender, EventArgs e)
         {

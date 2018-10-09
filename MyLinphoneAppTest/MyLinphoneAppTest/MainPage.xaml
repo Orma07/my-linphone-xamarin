@@ -17,6 +17,7 @@
 
         <Entry x:Name="address" Placeholder="Address" />
         <Button x:Name="call" Text="Start Call" Clicked="OnCallClicked" HorizontalOptions="Center" />
+        <Button x:Name="TestButton" Text="Start test" Clicked="OnStartTestClicked" HorizontalOptions="Center" />
         <Label x:Name="call_status" HorizontalOptions="Center" />
         <Button x:Name="mockButton" Text="Mock user, iternal test" Clicked="OnMockUserClicked" HorizontalOptions="Center" />
         <ContentView x:Name="contentViewVideo"
