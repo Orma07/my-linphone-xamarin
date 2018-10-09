@@ -47,11 +47,13 @@ namespace LibLinphone.Droid.LinphoneUtils
 
             androidView = new AndroidVideoWindowImpl(captureCamera, null, null);
 
+            androidView.SetListener(new AndroidVideoWindowListener { VideoHandle = androidView.Handle });
+
             captureCamera.SetZOrderOnTop(false);
             captureCamera.SetZOrderMediaOverlay(true);
 
-            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
-            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = androidView.Handle;
+            
+            
             LinphoneEngineAndroid.Instance.LinphoneCore.VideoDisplayEnabled = true;
 
 
@@ -144,6 +146,31 @@ namespace LibLinphone.Droid.LinphoneUtils
             captureCamera.SetOnTouchListener(null);
             s.Children.Add(captureCamera);
             Element.Content = s;
+        }
+    }
+
+    public class AndroidVideoWindowListener : Java.Lang.Object,  AndroidVideoWindowImpl.IVideoWindowListener
+    {
+        public IntPtr VideoHandle { get; set; }
+
+        public void OnVideoPreviewSurfaceDestroyed(AndroidVideoWindowImpl p0)
+        {
+
+        }
+
+        public void OnVideoPreviewSurfaceReady(AndroidVideoWindowImpl p0, SurfaceView p1)
+        {
+
+        }
+
+        public void OnVideoRenderingSurfaceDestroyed(AndroidVideoWindowImpl p0)
+        {
+            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
+        }
+
+        public void OnVideoRenderingSurfaceReady(AndroidVideoWindowImpl p0, SurfaceView p1)
+        {
+            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = VideoHandle;
         }
     }
 }

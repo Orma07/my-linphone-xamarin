@@ -172,6 +172,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     param.VideoEnabled = true;
                     param.VideoDirection = MediaDirection.RecvOnly;
                     param.AudioDirection = MediaDirection.SendRecv;
+                  
                     currentCall.AcceptEarlyMediaWithParams(param);
                 }
                 else
