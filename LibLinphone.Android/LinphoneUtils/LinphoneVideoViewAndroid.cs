@@ -170,7 +170,9 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         public void OnVideoRenderingSurfaceReady(AndroidVideoWindowImpl p0, SurfaceView p1)
         {
-            LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = VideoHandle;
+            if (LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId == IntPtr.Zero)
+                LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = VideoHandle;
+            
         }
     }
 }

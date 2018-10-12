@@ -113,6 +113,17 @@ namespace LibLinphone.Android.LinphoneUtils
                 LinphoneCore.AcceptCall(call);
                 result = true;
             }
+            else
+            {
+                try
+                {
+                    linphoneCore.AcceptCall(LastCall);
+                }
+                catch
+                {
+
+                }
+            }
             return result;
         }
 
@@ -217,6 +228,17 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 if (linphoneCore.CurrentCall != null)
                     linphoneCore.TerminateAllCalls();
+                else
+                {
+                    try
+                    {
+                        linphoneCore.TerminateCall(LastCall);
+                    }
+                    catch
+                    {
+
+                    }
+                }
                 nRetryTerminateCalls = 0;
             }
             catch (Exception ex)
@@ -372,10 +394,28 @@ namespace LibLinphone.Android.LinphoneUtils
             Log("Call stats: " + stats.DownloadBandwidth + " kbits/s / " + stats.UploadBandwidth + " kbits/s");
         }
 
+        private Call LastCall;
+
         private void OnCall(Core lc, Call lcall, CallState state, string message)
         {
             try
             {
+                if(state == CallState.End || state == CallState.Error)
+                {
+                    LastCall = null;
+
+                }
+                if((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall != null)
+                {
+                    linphoneCore.TerminateCall(LastCall);
+                    LastCall = null;
+                }
+            
+                if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall == null)
+                {
+                    LastCall = lcall;
+                }
+
                 CallPCL call = new CallPCL
                 {
                     UsernameCaller = lcall.RemoteAddress.Username
@@ -388,8 +428,8 @@ namespace LibLinphone.Android.LinphoneUtils
                     {
                         try
                         {
-                            var listenner = LinphoneListeners[i];
-                            listenner.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
+                            var listener = LinphoneListeners[i];
+                            listener.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
                         }
                         catch (Exception ex)
                         {

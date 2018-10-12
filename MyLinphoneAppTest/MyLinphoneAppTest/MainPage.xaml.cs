@@ -104,9 +104,9 @@ namespace MyLinphoneAppTes
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241517871221.ipvdesdev.vimar.cloud";
-            var pwd = "UuC639U35FRVdg1rly0w77j5IMzl1m8_";
-            var usr = "60003";
+            var domain = "f8dc7a13b724.f8dc7a13b7241518221438.ipvdesdev.vimar.cloud";
+            var pwd = "WyRYnzbUp7dZW6dXfdFBhbJ5ttDC5zXs";
+            var usr = "60001";
             string imei = "imei";
             string myName = "myName";
             string serverAddr = "192.168.1.5";
@@ -133,7 +133,7 @@ namespace MyLinphoneAppTes
 
         private void OnCallClicked(object sender, EventArgs e)
         {
-            string toCall = "55101";
+            string toCall = "800099";
             if (isOutgoingCall)
             {
                 LinphoneManager.TerminateAllCalls();
@@ -142,6 +142,8 @@ namespace MyLinphoneAppTes
             {
                 contentViewVideo.IsVisible = true;
                 contentViewVideo.Content = new LinphoneVideoView();
+                if (!String.IsNullOrEmpty(address.Text))
+                    toCall = address.Text;
                 LinphoneManager.CallSip(toCall);
                 isOutgoingCall = true;
             }
@@ -150,8 +152,9 @@ namespace MyLinphoneAppTes
 
         private void OnStartTestClicked(object sender, EventArgs e)
         {
-           
+
             string toCall = "55101";
+            //  string toCall = "800099";
             if (call.IsEnabled)
             {
                 TestButton.Text = "Stop";
