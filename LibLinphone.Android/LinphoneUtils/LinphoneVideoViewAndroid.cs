@@ -19,18 +19,21 @@ namespace LibLinphone.Droid.LinphoneUtils
     public class LinphoneVideoViewAndroid : ViewRenderer<LinphoneVideoView, View>
     {
         Org.Linphone.Mediastream.Video.Display.GL2JNIView captureCamera;
+        //SurfaceView captureCamera;
         AndroidVideoWindowImpl androidView;
         private MediaRecorder mMediaRecorder;
-        public LinphoneVideoViewAndroid() : base(Application.Context)
+        private Context Context { get; set; }
+        public LinphoneVideoViewAndroid(Context context) : base(context)
         {
-
+            Context = context;
         }
 
         private const double scaleFactor = 1;
 
         private void InitAndroidView(int width, int height)
         {
-            captureCamera = new Org.Linphone.Mediastream.Video.Display.GL2JNIView(Application.Context);
+            captureCamera = new Org.Linphone.Mediastream.Video.Display.GL2JNIView(Context);
+            //captureCamera = new SurfaceView(Context);
             var displayMetrics = new DisplayMetrics();
             var ctx = Application.Context;
             var windowManager = ctx.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
