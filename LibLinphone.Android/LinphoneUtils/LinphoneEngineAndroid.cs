@@ -29,6 +29,7 @@ namespace LibLinphone.Android.LinphoneUtils
         public static string RcPath { get; private set; }
         public static string CaPath { get; private set; }
         public static string FactoryPath { get; private set; }
+        public RegistrationState RegisterState { get; private set; }
 
         private static LinphoneEngineAndroid instance = null;
         public static LinphoneEngineAndroid Instance
@@ -155,7 +156,7 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             try
             {
-                if (linphoneCore.CallsNb == 0)
+                if (RegisterState == RegistrationState.Ok && linphoneCore.CallsNb == 0)
                 {
                     var addr = linphoneCore.InterpretUrl(username);
                     //addr.Transport = TransportType.Tcp;
@@ -529,6 +530,7 @@ namespace LibLinphone.Android.LinphoneUtils
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
         {
             Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}");
+            RegisterState = state;
             lock (LinphoneListeners)
             {
                 if (LinphoneListeners != null)

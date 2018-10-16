@@ -104,8 +104,8 @@ namespace MyLinphoneAppTes
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241518221438.ipvdesdev.vimar.cloud";
-            var pwd = "WyRYnzbUp7dZW6dXfdFBhbJ5ttDC5zXs";
+            var domain = "f8dc7a13b724.f8dc7a13b7241518732739.ipvdesdev.vimar.cloud";
+            var pwd = "5DEyCzxLSNFp7uMWumjYwchQK7Sv6Cn0";
             var usr = "60001";
             string imei = "imei";
             string myName = "myName";
