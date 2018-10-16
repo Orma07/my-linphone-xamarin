@@ -51,6 +51,7 @@ namespace LibLinphone.Android.LinphoneUtils
             Log($"Linphone version {Core.Version}");
             CoreListener = Factory.Instance.CreateCoreListener();
             LinphoneListeners = new List<ILinphoneListener>();
+            RegisterState = RegistrationState.None;
 
 
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
