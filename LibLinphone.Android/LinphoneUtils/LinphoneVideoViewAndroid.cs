@@ -33,15 +33,12 @@ namespace LibLinphone.Droid.LinphoneUtils
         private void InitAndroidView(int width, int height)
         {
             captureCamera = new Org.Linphone.Mediastream.Video.Display.GL2JNIView(Context);
-            //captureCamera = new SurfaceView(Context);
+
             var displayMetrics = new DisplayMetrics();
             var ctx = Application.Context;
             var windowManager = ctx.GetSystemService(Context.WindowService).JavaCast<IWindowManager>();
             windowManager.DefaultDisplay.GetMetrics(displayMetrics);
-            //var currentActivity = (Activity)Forms.Context;
-            //var Display = currentActivity.WindowManager.DefaultDisplay;
-            //var size = new Android.Graphics.Point();
-            //Display.GetSize(size);
+
             int width_android = (int)(width / (1f / displayMetrics.Density));
             int height_android = (int)(height / (1f / displayMetrics.Density));
             captureCamera.Holder.SetFixedSize(width_android, height_android);
@@ -113,10 +110,7 @@ namespace LibLinphone.Droid.LinphoneUtils
             int height = (int)(size.Y * scale);
             captureCamera.Holder.SetFixedSize(width, height);
 
-            // s.ScaleTo(scale);
 
-
-            //captureCamera.LayoutParameters = new LayoutParams(width, height);
 
         }
 
@@ -133,7 +127,7 @@ namespace LibLinphone.Droid.LinphoneUtils
         private void ClearView(object sender, EventArgs e)
         {
             InitAndroidView((int)Element.Width, (int)Element.Height);
-            //PopulateView();
+
 
             s = new Xamarin.Forms.StackLayout();
             s.IsEnabled = false;
@@ -168,6 +162,7 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         public void OnVideoRenderingSurfaceDestroyed(AndroidVideoWindowImpl p0)
         {
+            p0.Release();
             LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
         }
 

@@ -495,34 +495,32 @@ namespace LibLinphone.Android.LinphoneUtils
             while (true)
             {
 
-                Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                try
                 {
-                    try
+                    //Log("JobScheduler iteration");
+                    LinphoneCore.Iterate();
+                }
+                catch
+                {
+                    Log("WARNING: Iterate() - linphonoeCore Exception Managed");
+                    for (int i = 0; i < LinphoneListeners.Count; i++)
                     {
-                        //Log("JobScheduler iteration");
-                        LinphoneCore.Iterate();
-                    }
-                    catch
-                    {
-                        Log("WARNING: Iterate() - linphonoeCore Exception Managed");
-                        for (int i = 0; i < LinphoneListeners.Count; i++)
+                        try
                         {
-                            try
-                            {
-                                var listener = LinphoneListeners[i];
-                                listener.OnError(ErrorTypes.CoreIterateFailed);
-                                
-                            }
-                            catch (Exception ex)
-                            {
-                                Log("error with listenner, OnError");
-                            }
+                            var listener = LinphoneListeners[i];
+                            listener.OnError(ErrorTypes.CoreIterateFailed);
+
                         }
-
+                        catch (Exception ex)
+                        {
+                            Log("error with listenner, OnError");
+                        }
                     }
-             
 
-                });
+                }
+
+
+
 
                 await Task.Delay(50);
             }
