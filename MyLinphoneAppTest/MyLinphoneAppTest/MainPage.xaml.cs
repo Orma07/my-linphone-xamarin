@@ -104,9 +104,9 @@ namespace MyLinphoneAppTes
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241518732739.ipvdesdev.vimar.cloud";
-            var pwd = "5DEyCzxLSNFp7uMWumjYwchQK7Sv6Cn0";
-            var usr = "60001";
+            var domain = "f8dc7a13b724.f8dc7a13b7241518824610.ipvdesdev.vimar.cloud";
+            var pwd = "WByP0LDgpHu6gIFgH7WvAEm3UzsdXsbB";
+            var usr = "60002";
             string imei = "imei";
             string myName = "myName";
             string serverAddr = "192.168.1.5";
@@ -153,7 +153,7 @@ namespace MyLinphoneAppTes
         private void OnStartTestClicked(object sender, EventArgs e)
         {
 
-            string toCall = "55101";
+            string toCall = "55103";
             //  string toCall = "800099";
             if (call.IsEnabled)
             {
@@ -170,7 +170,7 @@ namespace MyLinphoneAppTes
                             LinphoneManager.CallSip(toCall);
                             isOutgoingCall = true;
                         });
-                        await Task.Delay(TimeSpan.FromSeconds(8));
+                        await Task.Delay(TimeSpan.FromSeconds(30));
                         Device.BeginInvokeOnMainThread(() =>
                         {
                             LinphoneManager.TerminateAllCalls();

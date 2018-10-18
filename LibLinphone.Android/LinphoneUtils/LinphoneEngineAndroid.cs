@@ -17,7 +17,6 @@ using LibLinphone.Droid.LinphoneUtils;
 using LibLinphone.Interfaces;
 using Linphone;
 
-
 namespace LibLinphone.Android.LinphoneUtils
 {
     public class LinphoneEngineAndroid
@@ -489,40 +488,38 @@ namespace LibLinphone.Android.LinphoneUtils
             System.Diagnostics.Debug.WriteLine($"LINPHONE MANAGER: {message}");
         }
 
-        public async Task LinphoneCoreIterateAsync()
+        public async void LinphoneCoreIterateAsync()
         {
-            while (true)
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
             {
-
-                try
+                while (true)
                 {
-                    //Log("JobScheduler iteration");
-                    LinphoneCore.Iterate();
-                }
-                catch
-                {
-                    Log("WARNING: Iterate() - linphonoeCore Exception Managed");
-                    for (int i = 0; i < LinphoneListeners.Count; i++)
+                    try
                     {
-                        try
-                        {
-                            var listener = LinphoneListeners[i];
-                            listener.OnError(ErrorTypes.CoreIterateFailed);
-
-                        }
-                        catch (Exception ex)
-                        {
-                            Log("error with listenner, OnError");
-                        }
+                        //Log("JobScheduler iteration");
+                        LinphoneCore.Iterate();
                     }
+                    catch
+                    {
+                        Log("WARNING: Iterate() - linphonoeCore Exception Managed");
+                        for (int i = 0; i < LinphoneListeners.Count; i++)
+                        {
+                            try
+                            {
+                                var listener = LinphoneListeners[i];
+                                listener.OnError(ErrorTypes.CoreIterateFailed);
 
+                            }
+                            catch (Exception ex)
+                            {
+                                Log("error with listenner, OnError");
+                            }
+                        }
+
+                    }
+                    await Task.Delay(50);
                 }
-
-
-
-
-                await Task.Delay(50);
-            }
+            });
         }
 
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
