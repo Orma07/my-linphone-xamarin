@@ -488,38 +488,40 @@ namespace LibLinphone.Android.LinphoneUtils
             System.Diagnostics.Debug.WriteLine($"LINPHONE MANAGER: {message}");
         }
 
-        public async void LinphoneCoreIterateAsync()
+        public void LinphoneCoreIterateAsync()
         {
-            Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
+            Xamarin.Forms.Device.StartTimer(TimeSpan.FromMilliseconds(50), () =>
             {
-                while (true)
-                {
-                    try
-                    {
-                        //Log("JobScheduler iteration");
+              //  try
+                //{
+                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => {
                         LinphoneCore.Iterate();
-                    }
-                    catch
+                    });
+
+               /* }
+                catch
+                {
+                    Log("WARNING: Iterate() - linphonoeCore Exception Managed");
+                    for (int i = 0; i < LinphoneListeners.Count; i++)
                     {
-                        Log("WARNING: Iterate() - linphonoeCore Exception Managed");
-                        for (int i = 0; i < LinphoneListeners.Count; i++)
+                        try
                         {
-                            try
-                            {
-                                var listener = LinphoneListeners[i];
-                                listener.OnError(ErrorTypes.CoreIterateFailed);
+                            var listener = LinphoneListeners[i];
+                            listener.OnError(ErrorTypes.CoreIterateFailed);
 
-                            }
-                            catch (Exception ex)
-                            {
-                                Log("error with listenner, OnError");
-                            }
                         }
-
+                        catch (Exception ex)
+                        {
+                            Log("error with listenner, OnError");
+                        }
                     }
-                    await Task.Delay(50);
-                }
+
+                }*/
+               
+                 
+                return true;
             });
+           
         }
 
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)

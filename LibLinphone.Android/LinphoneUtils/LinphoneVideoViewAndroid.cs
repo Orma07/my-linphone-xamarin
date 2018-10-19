@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 using Android.App;
 using Android.Content;
@@ -163,13 +163,18 @@ namespace LibLinphone.Droid.LinphoneUtils
         public void OnVideoRenderingSurfaceDestroyed(AndroidVideoWindowImpl p0)
         {
             p0.Release();
+            p0.Dispose();
             LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
         }
 
         public void OnVideoRenderingSurfaceReady(AndroidVideoWindowImpl p0, SurfaceView p1)
         {
             if (LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId == IntPtr.Zero)
-                LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = VideoHandle;
+            {
+          
+                LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = p0.Handle;
+                
+            }
             
         }
     }
