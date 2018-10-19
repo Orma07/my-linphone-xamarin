@@ -90,11 +90,11 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.EchoCancellationEnabled = true;
 
-           // linphoneCore.AddListener(CoreListener);
 
-            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 
-            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc
+            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
+            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
 
+            // DON'T DELETE!
             // linphoneCore.BeamformingMicDist = 184f;
             // linphoneCore.BeamformingAngleDeg = 0;
             // linphoneCore.BeamformingEnabled = true;
@@ -280,6 +280,7 @@ namespace LibLinphone.Android.LinphoneUtils
             Java.Lang.JavaSystem.LoadLibrary("ortp");
             Java.Lang.JavaSystem.LoadLibrary("mediastreamer");
             Java.Lang.JavaSystem.LoadLibrary("linphone");
+
 
             // This is mandatory for Android
             LinphoneAndroid.setAndroidContext(JNIEnv.Handle, Application.Context.Handle);
@@ -492,13 +493,14 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             Xamarin.Forms.Device.StartTimer(TimeSpan.FromMilliseconds(50), () =>
             {
-              //  try
-                //{
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => {
+                try
+                {
+                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                    {
                         LinphoneCore.Iterate();
                     });
 
-               /* }
+                }
                 catch
                 {
                     Log("WARNING: Iterate() - linphonoeCore Exception Managed");
@@ -516,9 +518,8 @@ namespace LibLinphone.Android.LinphoneUtils
                         }
                     }
 
-                }*/
-               
-                 
+                }
+                            
                 return true;
             });
            
