@@ -60,8 +60,8 @@ namespace LibLinphone.Android.LinphoneUtils
             Core.EnableLogCollection(LogCollectionState.Enabled);
             UploadLogCommand();
 
-            LoggingService.Instance.LogLevel = LogLevel.Debug;
-            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+            //LoggingService.Instance.LogLevel = LogLevel.Debug;
+            //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
             CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
@@ -154,13 +154,14 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void CallSip(string username)
         {
+        
             try
             {
                 if (RegisterState == RegistrationState.Ok && linphoneCore.CallsNb == 0)
                 {
                     var addr = linphoneCore.InterpretUrl(username);
-                    //addr.Transport = TransportType.Tcp;
-                    linphoneCore.InviteAddress(addr);
+                    if (addr != null)
+                        linphoneCore.InviteAddress(addr);
                 }
             }
             catch 
@@ -495,10 +496,10 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 try
                 {
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
-                    {
+                   // Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                   // {
                         LinphoneCore.Iterate();
-                    });
+                   // });
 
                 }
                 catch
