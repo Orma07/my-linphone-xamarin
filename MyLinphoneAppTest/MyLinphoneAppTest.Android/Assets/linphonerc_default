@@ -12,6 +12,10 @@ sip_udp_port=0
 sip_tcp_port=-1
 sip_tls_port=0
 
+[video]
+displaytype=MSAndroidDisplay
+
+
 [sound]
 echocancellation=1
 ec_filter=MSWebRTCAEC

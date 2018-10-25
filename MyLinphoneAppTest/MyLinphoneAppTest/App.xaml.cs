@@ -1,3 +1,4 @@
+using LibLinphone.Interfaces;
 using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -7,11 +8,12 @@ namespace MyLinphoneAppTes
 {
 	public partial class App : Application
 	{
-		public App ()
+        public static ILinphoneManager LinphoneManager { get; private set; }
+        public App ()
 		{
 			InitializeComponent();
-
-			MainPage = new MainPage();
+            LinphoneManager = DependencyService.Get<ILinphoneManager>();
+            MainPage = new NavigationPage(new MainPage());
 		}
 
 		protected override void OnStart ()

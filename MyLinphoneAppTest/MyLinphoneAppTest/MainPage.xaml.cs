@@ -1,5 +1,6 @@
 ﻿using LibLinphone.Interfaces;
 using LibLinphone.Views;
+using MyLinphoneAppTest;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,18 +11,20 @@ using Xamarin.Forms;
 
 namespace MyLinphoneAppTes
 {
-	public partial class MainPage : ContentPage, ILinphneListenner
+	public partial class MainPage : ContentPage, ILinphoneListener
 	{
-        private ILinphoneManager LinphoneManager;
+        private ILinphoneManager LinphoneManager = App.LinphoneManager;
         private bool MockUser;
         private CallPCL CurrentCall;
         private CallStatePCL StateOfCurrentCall;
+        private bool isOutgoingCall = false;
         //Kalpa
         public MainPage()
 		{
 			InitializeComponent();
-            LinphoneManager = DependencyService.Get<ILinphoneManager>();
+            
             LinphoneManager.AddLinphoneListenner(this);
+            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         public void OnCall(CallArgs e)
@@ -34,28 +37,53 @@ namespace MyLinphoneAppTes
 
             if (StateOfCurrentCall == CallStatePCL.IncomingReceived)
             {
-                call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
-                LinphoneManager.SetViewCall(CurrentCall);
+                var page = new OnCallPage();
+                page.RefuseCall += (s, args) =>
+                {
+                    LinphoneManager.TerminateAllCalls();
+                };
+
+                page.AcceptCall += (s, args) =>
+                {
+                    LinphoneManager.AcceptCall();
+                };
+
+                page.SetVideoView(CurrentCall, LinphoneManager);
+
+                Navigation.PushAsync(page);
 
             }
             else if(StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
             {
-                call.Text = "Answer Call (" + CurrentCall.UsernameCaller + ")";
+                
             }
             else if(StateOfCurrentCall == CallStatePCL.StreamsRunning)
             {
-                call.Text = "Terminate";
-                if (!CurrentCall.IsVideoEnabled)
+                if (isOutgoingCall)
                 {
-                    LinphoneManager.SetViewCallOutgoing(CurrentCall);
+                    call.Text = "Terminate";
+                    if (!CurrentCall.IsVideoEnabled)
+                    {
+                        LinphoneManager.SetViewCallOutgoing(CurrentCall);
+                    }
                 }
-            }else if (StateOfCurrentCall == CallStatePCL.Released || StateOfCurrentCall == CallStatePCL.End ||
-                StateOfCurrentCall == CallStatePCL.Released)
+            }else if (StateOfCurrentCall == CallStatePCL.Error || StateOfCurrentCall == CallStatePCL.End)
             {
                 call.Text = "Start Call";
-            }
-          
+               
+                var stack = Navigation.NavigationStack; // remove on call page
+                if(stack != null && stack.Count == 2)
+                {
+                    Navigation.PopAsync();
+                }
+                if (isOutgoingCall)
+                {
+                    isOutgoingCall = false;
+                    contentViewVideo.IsVisible = false;
+                    contentViewVideo.Content = null;
 
+                }
+            }
 
         }
 
@@ -70,16 +98,15 @@ namespace MyLinphoneAppTes
                 register.IsEnabled = false;
                 mockButton.IsVisible = false;
                 stack_registrar.IsVisible = false;
-                contentViewVideo.IsVisible = true;
-                contentViewVideo.Content = new LinphoneVideoView();
+                
             }
         }
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241516390701.ipvdesdev.vimar.cloud";
-            var pwd = "mSEQpDi438z41nUTbWbPI_jNR6TIoLZ5";
-            var usr = "60005";
+            var domain = "f8dc7a13b724.f8dc7a13b7241518824610.ipvdesdev.vimar.cloud";
+            var pwd = "WByP0LDgpHu6gIFgH7WvAEm3UzsdXsbB";
+            var usr = "60002";
             string imei = "imei";
             string myName = "myName";
             string serverAddr = "192.168.1.5";
@@ -106,32 +133,81 @@ namespace MyLinphoneAppTes
 
         private void OnCallClicked(object sender, EventArgs e)
         {
-            string toCall = "55101";
-            if (StateOfCurrentCall == CallStatePCL.StreamsRunning)
+            string toCall = "800099";
+            if (isOutgoingCall)
             {
                 LinphoneManager.TerminateAllCalls();
             }
-            else if(StateOfCurrentCall == CallStatePCL.IncomingReceived || StateOfCurrentCall == CallStatePCL.IncomingEarlyMedia)
+            else
             {
-                LinphoneManager.AcceptCall();
-                mockButton.IsVisible = false;
-            }
-            else if(call.Text == "Start Call")
-            {
-                if (!MockUser)
-                {
+                contentViewVideo.IsVisible = true;
+                contentViewVideo.Content = new LinphoneVideoView();
+                if (!String.IsNullOrEmpty(address.Text))
                     toCall = address.Text;
-                }
                 LinphoneManager.CallSip(toCall);
+                isOutgoingCall = true;
             }
         }
+        private Task taskRun = null;
+
+        private void OnStartTestClicked(object sender, EventArgs e)
+        {
+
+            string toCall = "55103";
+            //  string toCall = "800099";
+            if (call.IsEnabled)
+            {
+                TestButton.Text = "Stop";
+                call.IsEnabled = false;
+                taskRun = new Task(async () =>
+                {
+                    while (true)
+                    {
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            contentViewVideo.IsVisible = true;
+                            contentViewVideo.Content = new LinphoneVideoView();
+                            LinphoneManager.CallSip(toCall);
+                            isOutgoingCall = true;
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(30));
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            LinphoneManager.TerminateAllCalls();
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(4));
+                    }
+                    
+                });
+
+                taskRun.Start();
+            }
+            else
+            {
+                if(taskRun != null)
+                {
+                    taskRun.Dispose();
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        call.IsEnabled = true;
+                        TestButton.Text = "Start test";
+                    });
+              
+                }
+            }
+
+        }
+
+
 
         private void OnMockUserClicked(object sender, EventArgs e)
         {
             MockUser = true;
         }
 
-
-
+        public void OnError(ErrorTypes type)
+        {
+            //throw new NotImplementedException();
+        }
     }
 }
