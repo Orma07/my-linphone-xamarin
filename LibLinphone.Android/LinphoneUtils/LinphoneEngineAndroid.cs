@@ -77,7 +77,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
-            Log($"used transports is {linphoneCore.TransportsUsed}");
+            Log($"used transports is {linphoneCore.TransportsUsed.ToString()}");
             
 
             LogCodecs();
