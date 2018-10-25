@@ -104,9 +104,9 @@ namespace MyLinphoneAppTes
 
         private void OnRegisterClicked(object sender, EventArgs e)
         {
-            var domain = "f8dc7a13b724.f8dc7a13b7241517871221.ipvdesdev.vimar.cloud";
-            var pwd = "UuC639U35FRVdg1rly0w77j5IMzl1m8_";
-            var usr = "60003";
+            var domain = "f8dc7a13b724.f8dc7a13b7241518824610.ipvdesdev.vimar.cloud";
+            var pwd = "WByP0LDgpHu6gIFgH7WvAEm3UzsdXsbB";
+            var usr = "60002";
             string imei = "imei";
             string myName = "myName";
             string serverAddr = "192.168.1.5";
@@ -133,7 +133,7 @@ namespace MyLinphoneAppTes
 
         private void OnCallClicked(object sender, EventArgs e)
         {
-            string toCall = "55101";
+            string toCall = "800099";
             if (isOutgoingCall)
             {
                 LinphoneManager.TerminateAllCalls();
@@ -142,10 +142,63 @@ namespace MyLinphoneAppTes
             {
                 contentViewVideo.IsVisible = true;
                 contentViewVideo.Content = new LinphoneVideoView();
+                if (!String.IsNullOrEmpty(address.Text))
+                    toCall = address.Text;
                 LinphoneManager.CallSip(toCall);
                 isOutgoingCall = true;
             }
         }
+        private Task taskRun = null;
+
+        private void OnStartTestClicked(object sender, EventArgs e)
+        {
+
+            string toCall = "55103";
+            //  string toCall = "800099";
+            if (call.IsEnabled)
+            {
+                TestButton.Text = "Stop";
+                call.IsEnabled = false;
+                taskRun = new Task(async () =>
+                {
+                    while (true)
+                    {
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            contentViewVideo.IsVisible = true;
+                            contentViewVideo.Content = new LinphoneVideoView();
+                            LinphoneManager.CallSip(toCall);
+                            isOutgoingCall = true;
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(30));
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            LinphoneManager.TerminateAllCalls();
+                        });
+                        await Task.Delay(TimeSpan.FromSeconds(4));
+                    }
+                    
+                });
+
+                taskRun.Start();
+            }
+            else
+            {
+                if(taskRun != null)
+                {
+                    taskRun.Dispose();
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        call.IsEnabled = true;
+                        TestButton.Text = "Start test";
+                    });
+              
+                }
+            }
+
+        }
+
+
 
         private void OnMockUserClicked(object sender, EventArgs e)
         {

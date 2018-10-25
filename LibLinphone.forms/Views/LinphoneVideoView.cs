@@ -7,13 +7,8 @@ namespace LibLinphone.Views
 {
     public class LinphoneVideoView : ContentView
     {
-        public event EventHandler ClearingView;
         public event EventHandler<ZoomEventsArg> ZoomEvent;
-        public void ClearView()
-        {
-            ClearingView?.Invoke(this, EventArgs.Empty);
-        }
-
+     
         public void ZoomView(ZoomType zoomType)
         {
             ZoomEvent?.Invoke(this, new ZoomEventsArg(zoomType));
