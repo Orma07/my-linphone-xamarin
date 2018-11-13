@@ -8,6 +8,7 @@ using Android.Widget;
 using Android.OS;
 using LibLinphone.Droid.LinphoneUtils;
 using Java.IO;
+using LibLinphone.Android.LinphoneUtils;
 
 namespace MyLinphoneAppTes.Droid
 {
@@ -25,7 +26,8 @@ namespace MyLinphoneAppTes.Droid
 
             base.OnCreate(bundle);
             global::Xamarin.Forms.Forms.Init(this, bundle);
-            LinphoneManagerAndroid.Start();
+
+            LinphoneEngineAndroid.Start();
             LoadApplication(new App()); 
 
             var folder = new File("/certs/");

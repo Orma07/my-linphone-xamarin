@@ -14813,8 +14813,9 @@ namespace Linphone
 		/// </summary>
 		public void Iterate()
 		{
-			linphone_core_iterate(nativePtr);
-			
+        
+                linphone_core_iterate(nativePtr);
+           	
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_core_leave_conference(IntPtr thiz);
