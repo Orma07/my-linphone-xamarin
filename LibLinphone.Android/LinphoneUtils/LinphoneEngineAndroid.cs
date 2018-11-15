@@ -60,7 +60,7 @@ namespace LibLinphone.Android.LinphoneUtils
             Core.EnableLogCollection(LogCollectionState.Enabled);
             UploadLogCommand();
 
-            //LoggingService.Instance.LogLevel = LogLevel.Debug;
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
             //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
@@ -77,7 +77,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
-            Log($"used transports is {linphoneCore.TransportsUsed}");
+            Log($"used transports is {linphoneCore.TransportsUsed.ToString()}");
             
 
             LogCodecs();
@@ -95,9 +95,9 @@ namespace LibLinphone.Android.LinphoneUtils
             //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
 
             // DON'T DELETE!
-            // linphoneCore.BeamformingMicDist = 184f;
-            // linphoneCore.BeamformingAngleDeg = 0;
-            // linphoneCore.BeamformingEnabled = true;
+            linphoneCore.BeamformingMicDist = 74f;
+            linphoneCore.BeamformingAngleDeg = 0;
+            linphoneCore.BeamformingEnabled = true;
 
             LinphoneCoreIterateAsync();
 
