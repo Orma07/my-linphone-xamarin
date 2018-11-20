@@ -89,14 +89,16 @@ namespace LibLinphone.Android.LinphoneUtils
             CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
             linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoLimiterEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
 
 
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
             //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
 
             // DON'T DELETE!
-            linphoneCore.BeamformingMicDist = 74f;
-            linphoneCore.BeamformingAngleDeg = 0;
+            linphoneCore.BeamformingMicDist = 182f;
+            linphoneCore.BeamformingAngleDeg = 0.0f;
             linphoneCore.BeamformingEnabled = true;
 
             LinphoneCoreIterateAsync();
@@ -416,6 +418,11 @@ namespace LibLinphone.Android.LinphoneUtils
                 if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall == null)
                 {
                     LastCall = lcall;
+                }
+
+                if(state == CallState.IncomingEarlyMedia || state == CallState.OutgoingProgress)
+                {
+                    linphoneCore.StartEchoCancellerCalibration();
                 }
 
                 CallPCL call = new CallPCL
