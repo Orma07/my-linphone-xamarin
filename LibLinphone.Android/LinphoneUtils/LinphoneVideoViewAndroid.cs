@@ -61,8 +61,15 @@ namespace LibLinphone.Droid.LinphoneUtils
 
         private void OnVideoRenderingSurfaceDestroyed(object sender, AndroidVideoWindowListenerArgs e)
         {
-            androidView.Release();
-            androidView.Dispose();
+            try
+            {
+                androidView.Release();
+                androidView.Dispose();
+            }
+            catch
+            {
+
+            }
         }
 
         private void OnVideoRenderingSurfaceReady(object sender, AndroidVideoWindowListenerArgs e)
