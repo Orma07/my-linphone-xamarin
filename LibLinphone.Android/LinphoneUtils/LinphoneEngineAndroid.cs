@@ -58,8 +58,10 @@ namespace LibLinphone.Android.LinphoneUtils
             // Required to be able to store logs as file
             Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
             Core.EnableLogCollection(LogCollectionState.Enabled);
+            
+#if DEBUGDEV
             UploadLogCommand();
-
+#endif
             //LoggingService.Instance.LogLevel = LogLevel.Debug;
             //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
