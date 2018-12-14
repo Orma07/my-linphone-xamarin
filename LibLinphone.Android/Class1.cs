@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LibLinphone.Android
+﻿namespace LibLinphone.Android
 {
     public class Class1
     {

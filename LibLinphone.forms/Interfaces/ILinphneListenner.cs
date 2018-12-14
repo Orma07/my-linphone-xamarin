@@ -1,9 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LibLinphone.Interfaces
+﻿namespace LibLinphone.Interfaces
 {
     public interface ILinphoneListener
     {

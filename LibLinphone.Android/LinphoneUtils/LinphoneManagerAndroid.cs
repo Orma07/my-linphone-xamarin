@@ -1,22 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Android;
-using Android.App;
-using Android.Content;
-using Android.Content.PM;
-using Android.Content.Res;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
-using LibLinphone.Android.LinphoneUtils;
+﻿using LibLinphone.Android.LinphoneUtils;
 using LibLinphone.Droid.LinphoneUtils;
 using LibLinphone.Interfaces;
-using Linphone;
 
 [assembly: Xamarin.Forms.Dependency(typeof(LinphoneManagerAndroid))]
 namespace LibLinphone.Droid.LinphoneUtils
