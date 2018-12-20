@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
@@ -15,6 +16,8 @@ namespace LibLinphone.Android.LinphoneUtils
 {
     public class LinphoneEngineAndroid
     {
+        public static readonly CancellationTokenSource CancelLogTask = new CancellationTokenSource();
+        
         private CoreListener CoreListener;
         public List<ILinphoneListener> LinphoneListeners { get; set; }
         const int PERMISSIONS_REQUEST = 101;
@@ -334,13 +337,16 @@ namespace LibLinphone.Android.LinphoneUtils
             
         }
 
-        private async Task UploadLogCommand()
+        private void UploadLogCommand()
         {
-            while (true)
+            Task.Run(async () =>
             {
-                linphoneCore.UploadLogCollection();
-                await Task.Delay(TimeSpan.FromSeconds(60));
-            }
+                while (true)
+                {
+                    linphoneCore.UploadLogCollection();
+                    await Task.Delay(TimeSpan.FromSeconds(60), CancelLogTask.Token);
+                }
+            }, CancelLogTask.Token);
         }
 
         private void OnLogUpload(Core lc, CoreLogCollectionUploadState state, string info)
