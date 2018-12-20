@@ -56,11 +56,11 @@ namespace LibLinphone.Android.LinphoneUtils
             Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
             Core.EnableLogCollection(LogCollectionState.Enabled);
             
-#if DEBUGDEV
+
             UploadLogCommand();
-#endif
-            //LoggingService.Instance.LogLevel = LogLevel.Debug;
-            //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
+            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
             CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
@@ -88,6 +88,7 @@ namespace LibLinphone.Android.LinphoneUtils
             CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
             linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
 
 
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!

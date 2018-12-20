@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Diagnostics;
 #if __IOS__
 using ObjCRuntime;
 #endif
@@ -5440,6 +5441,7 @@ namespace Linphone
 			LoggingServiceListener listener = thiz.Listener;
 			
 			listener.on_log_message_written_public?.Invoke(thiz, domain, (Linphone.LogLevel)lev, message);
+            Debug.WriteLine($"[{domain}] - {((LogLevel)lev).ToString().ToUpper()}: {message}");
 		}
 
 		public OnLogMessageWrittenDelegate OnLogMessageWritten
