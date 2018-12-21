@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,8 +59,8 @@ namespace LibLinphone.Android.LinphoneUtils
 
             UploadLogCommand();
 
-            LoggingService.Instance.LogLevel = LogLevel.Debug;
-            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+//            LoggingService.Instance.LogLevel = LogLevel.Debug;
+//            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
             CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
