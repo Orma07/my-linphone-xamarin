@@ -21,6 +21,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Android.Util;
 #if __IOS__
 using ObjCRuntime;
 #endif
@@ -5441,7 +5442,7 @@ namespace Linphone
 			LoggingServiceListener listener = thiz.Listener;
 			
 			listener.on_log_message_written_public?.Invoke(thiz, domain, (Linphone.LogLevel)lev, message);
-            Debug.WriteLine($"[{domain}] - {((LogLevel)lev).ToString().ToUpper()}: {message}");
+            Console.WriteLine($"[{domain}] - {((LogLevel)lev).ToString().ToUpper()}: {message}");
 		}
 
 		public OnLogMessageWrittenDelegate OnLogMessageWritten
