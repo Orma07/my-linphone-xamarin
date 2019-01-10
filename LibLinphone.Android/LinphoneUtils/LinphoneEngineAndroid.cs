@@ -17,7 +17,8 @@ namespace LibLinphone.Android.LinphoneUtils
     public class LinphoneEngineAndroid
     {
         public static readonly CancellationTokenSource CancelLogTask = new CancellationTokenSource();
-        
+
+        private LoggingServiceListener LogServiceListener;
         private CoreListener CoreListener;
         public List<ILinphoneListener> LinphoneListeners { get; set; }
         const int PERMISSIONS_REQUEST = 101;
@@ -55,12 +56,17 @@ namespace LibLinphone.Android.LinphoneUtils
             // Required to be able to store logs as file
             Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
             Core.EnableLogCollection(LogCollectionState.Enabled);
+
+           
             
 
             UploadLogCommand();
 
-//            LoggingService.Instance.LogLevel = LogLevel.Debug;
-//            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+
+            LinphoneWrapper.setNativeLogHandler();
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
+            //LogServiceListener = LoggingService.Instance.Listener;
+            //LogServiceListener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
             CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
@@ -89,6 +95,12 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.EchoCancellationEnabled = true;
             linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
+
+          
+            linphoneCore.MsFactory.addDevicesInfo("Freescale",
+                    "MTSX",
+                    "imx6", (1 << 1), 86, 0);
+            linphoneCore.ReloadSoundDevices();
 
 
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
@@ -307,13 +319,10 @@ namespace LibLinphone.Android.LinphoneUtils
             }
 
             string factory_path = path + "/factory_rc";
-            if (!File.Exists(factory_path))
+            using (StreamReader sr = new StreamReader(assets.Open("linphonerc_factory")))
             {
-                using (StreamReader sr = new StreamReader(assets.Open("linphonerc_factory")))
-                {
-                    string content = sr.ReadToEnd();
-                    File.WriteAllText(factory_path, content);
-                }
+                string content = sr.ReadToEnd();
+                File.WriteAllText(factory_path, content);
             }
 
             FactoryPath = factory_path;
@@ -340,14 +349,19 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private void UploadLogCommand()
         {
-            Task.Run(async () =>
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() => 
             {
-                while (true)
+                linphoneCore.UploadLogCollection();
+                /*Task.Run(async () =>
                 {
-                    linphoneCore.UploadLogCollection();
-                    await Task.Delay(TimeSpan.FromSeconds(60), CancelLogTask.Token);
-                }
-            }, CancelLogTask.Token);
+                    while (true)
+                    {
+                        
+                        await Task.Delay(TimeSpan.FromSeconds(60), CancelLogTask.Token);
+                    }
+                }, CancelLogTask.Token);*/
+            });
+            
         }
 
         private void OnLogUpload(Core lc, CoreLogCollectionUploadState state, string info)
@@ -401,6 +415,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private Call LastCall;
 
+        private int OutgoingCall = 0;
         private void OnCall(Core lc, Call lcall, CallState state, string message)
         {
             try
@@ -433,6 +448,11 @@ namespace LibLinphone.Android.LinphoneUtils
                     {
                         try
                         {
+                            if(state == CallState.OutgoingInit)
+                            {
+                                OutgoingCall++;
+                                Log($"Outgoing call number: {OutgoingCall}");
+                            }
                             var listener = LinphoneListeners[i];
                             listener.OnCall(new CallArgs(call, (int)state, message, param.VideoEnabled));
                         }
@@ -485,6 +505,16 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private void OnGlobal(Core lc, GlobalState gstate, string message)
         {
+            if (gstate == GlobalState.On)
+            {
+               /* lc.MsFactory.addDevicesInfo(global::Android.OS.Build.Manufacturer, 
+                    global::Android.OS.Build.Model,
+                    global::Android.OS.Build.Device, 1 << 1, 86, 0);*/
+
+                lc.MsFactory.addDevicesInfo("Freescale",
+                    "MTSX",
+                    "imx6", (1<<1), 86, 0);
+            }
             Log("LINPHONE - Global state changed -> " + gstate);
         }
 
@@ -499,10 +529,10 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 try
                 {
-                   // Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
-                   // {
+                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                    {
                         LinphoneCore.Iterate();
-                   // });
+                    });
 
                 }
                 catch

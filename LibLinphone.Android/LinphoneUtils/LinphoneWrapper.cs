@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Android.Util;
 #if __IOS__
 using ObjCRuntime;
 #endif
@@ -34,7 +32,7 @@ namespace Linphone
 	/// </summary>
 	public class LinphoneWrapper
 	{
-		public const string VERSION = "0.1-18-g6558566";
+		public const string VERSION = "4.1-159-g61c0ede";
 #if __IOS__
 		public const string LIB_NAME = "linphone.framework/linphone";
 #else
@@ -282,12 +280,37 @@ namespace Linphone
 		}
 	}
 #endif
+
+	public class MediastreamerFactory
+	{
+		public IntPtr nativePtr;
+
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int ms_factory_enable_filter_from_name(IntPtr nativePtr, string name, char enabled);
+
+		public void enableFilterFromName(string name, bool enabled)
+		{
+			ms_factory_enable_filter_from_name(nativePtr, name, enabled ? (char)1 : (char)0);
+		}
+
+                [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+                static extern void ms_devices_info_add(IntPtr devices_info, string manufacturer, string model, string platform, uint flags, int delay, int recommended_rate);
+
+                [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+                static extern IntPtr ms_factory_get_devices_info(IntPtr factory);
+
+                public void addDevicesInfo(string manufacturer, string model, string platform, uint flags, int delay, int recommended_rate)
+                {
+                        ms_devices_info_add(ms_factory_get_devices_info(nativePtr), manufacturer, model, platform, flags, delay, recommended_rate);
+                }
+	}
 #endregion
 
 #region Enums
 	/// <summary>
 	/// Enum describing RTP AVPF activation modes. 
 	/// </summary>
+	
 	public enum AVPFMode
 	{
 		/// <summary>
@@ -307,6 +330,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Activation code checking. 
 	/// </summary>
+	
 	public enum AccountCreatorActivationCodeStatus
 	{
 		/// <summary>
@@ -328,8 +352,25 @@ namespace Linphone
 	}
 
 	/// <summary>
+	/// Enum algorithm checking. 
+	/// </summary>
+	
+	public enum AccountCreatorAlgoStatus
+	{
+		/// <summary>
+		/// Algorithm ok. 
+		/// </summary>
+		Ok = 0,
+		/// <summary>
+		/// Algorithm not supported. 
+		/// </summary>
+		NotSupported = 1,
+	}
+
+	/// <summary>
 	/// Enum describing Domain checking. 
 	/// </summary>
+	
 	public enum AccountCreatorDomainStatus
 	{
 		/// <summary>
@@ -345,6 +386,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Email checking. 
 	/// </summary>
+	
 	public enum AccountCreatorEmailStatus
 	{
 		/// <summary>
@@ -364,6 +406,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing language checking. 
 	/// </summary>
+	
 	public enum AccountCreatorLanguageStatus
 	{
 		/// <summary>
@@ -375,6 +418,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Password checking. 
 	/// </summary>
+	
 	public enum AccountCreatorPasswordStatus
 	{
 		/// <summary>
@@ -402,6 +446,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Phone number checking. 
 	/// </summary>
+	
 	public enum AccountCreatorPhoneNumberStatus
 	{
 		/// <summary>
@@ -429,6 +474,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the status of server request. 
 	/// </summary>
+	
 	public enum AccountCreatorStatus
 	{
 		/// <summary>
@@ -508,6 +554,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Transport checking. 
 	/// </summary>
+	
 	public enum AccountCreatorTransportStatus
 	{
 		/// <summary>
@@ -523,6 +570,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Username checking. 
 	/// </summary>
+	
 	public enum AccountCreatorUsernameStatus
 	{
 		/// <summary>
@@ -550,6 +598,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing Ip family. 
 	/// </summary>
+	
 	public enum AddressFamily
 	{
 		/// <summary>
@@ -569,6 +618,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing type of audio route. 
 	/// </summary>
+	
 	public enum AudioRoute
 	{
 		Earpiece = 0,
@@ -578,6 +628,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the authentication methods. 
 	/// </summary>
+	
 	public enum AuthMethod
 	{
 		/// <summary>
@@ -593,6 +644,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum representing the direction of a call. 
 	/// </summary>
+	
 	public enum CallDir
 	{
 		/// <summary>
@@ -606,8 +658,9 @@ namespace Linphone
 	}
 
 	/// <summary>
-	/// LinphoneCallState enum represents the different state a call can reach into. 
+	/// LinphoneCallState enum represents the different states a call can reach into. 
 	/// </summary>
+	
 	public enum CallState
 	{
 		/// <summary>
@@ -701,6 +754,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum representing the status of a call. 
 	/// </summary>
+	
 	public enum CallStatus
 	{
 		/// <summary>
@@ -738,6 +792,7 @@ namespace Linphone
 	/// LinphoneChatMessageDirection is used to indicate if a message is outgoing or
 	/// incoming. 
 	/// </summary>
+	
 	public enum ChatMessageDirection
 	{
 		/// <summary>
@@ -751,9 +806,10 @@ namespace Linphone
 	}
 
 	/// <summary>
-	/// LinphoneChatMessageState is used to notify if messages have been succesfully
+	/// LinphoneChatMessageState is used to notify if messages have been successfully
 	/// delivered or not. 
 	/// </summary>
+	
 	public enum ChatMessageState
 	{
 		/// <summary>
@@ -791,9 +847,10 @@ namespace Linphone
 	}
 
 	/// <summary>
-	/// LinphoneChatRoomCapabilities is used to indicated the capabilities of a chat
+	/// LinphoneChatRoomCapabilities is used to indicate the capabilities of a chat
 	/// room. 
 	/// </summary>
+	[Flags]
 	public enum ChatRoomCapabilities
 	{
 		/// <summary>
@@ -820,11 +877,42 @@ namespace Linphone
 		/// A communication between two participants (can be Basic or Conference) 
 		/// </summary>
 		OneToOne = 1<<5,
+		/// <summary>
+		/// Chat room is encrypted. 
+		/// </summary>
+		Encrypted = 1<<6,
+	}
+
+	/// <summary>
+	/// TODO move to encryption engine object when available
+	/// LinphoneChatRoomSecurityLevel is used to indicate the encryption security level
+	/// of a chat room. 
+	/// </summary>
+	
+	public enum ChatRoomSecurityLevel
+	{
+		/// <summary>
+		/// Security failure. 
+		/// </summary>
+		Unsafe = 0,
+		/// <summary>
+		/// No encryption. 
+		/// </summary>
+		ClearText = 1,
+		/// <summary>
+		/// Encrypted. 
+		/// </summary>
+		Encrypted = 2,
+		/// <summary>
+		/// Encrypted and verified. 
+		/// </summary>
+		Safe = 3,
 	}
 
 	/// <summary>
 	/// LinphoneChatRoomState is used to indicate the current state of a chat room. 
 	/// </summary>
+	
 	public enum ChatRoomState
 	{
 		/// <summary>
@@ -869,6 +957,7 @@ namespace Linphone
 	/// LinphoneGlobalState describes the global state of the <see cref="Linphone.Core"
 	/// /> object. 
 	/// </summary>
+	
 	public enum ConfiguringState
 	{
 		Successful = 0,
@@ -882,6 +971,7 @@ namespace Linphone
 	/// an other activity, 'do not disturb' means the user is not open for
 	/// communication, and 'offline' means that no presence information is available. 
 	/// </summary>
+	
 	public enum ConsolidatedPresence
 	{
 		Online = 0,
@@ -894,6 +984,7 @@ namespace Linphone
 	/// LinphoneCoreLogCollectionUploadState is used to notify if log collection upload
 	/// have been succesfully delivered or not. 
 	/// </summary>
+	
 	public enum CoreLogCollectionUploadState
 	{
 		/// <summary>
@@ -914,6 +1005,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the result of the echo canceller calibration process. 
 	/// </summary>
+	
 	public enum EcCalibratorStatus
 	{
 		/// <summary>
@@ -939,6 +1031,7 @@ namespace Linphone
 	/// <summary>
 	/// LinphoneEventLogType is used to indicate the type of an event. 
 	/// </summary>
+	
 	public enum EventLogType
 	{
 		/// <summary>
@@ -993,11 +1086,27 @@ namespace Linphone
 		/// Conference subject event. 
 		/// </summary>
 		ConferenceSubjectChanged = 12,
+		/// <summary>
+		/// Conference encryption security event. 
+		/// </summary>
+		ConferenceSecurityEvent = 13,
 	}
 
 	/// <summary>
 	/// Enum describing the status of a LinphoneFriendList operation. 
 	/// </summary>
+	[Flags]
+	public enum FriendCapability
+	{
+		None = 0,
+		GroupChat = 1<<0,
+		LimeX3Dh = 1<<1,
+	}
+
+	/// <summary>
+	/// Enum describing the status of a LinphoneFriendList operation. 
+	/// </summary>
+	
 	public enum FriendListStatus
 	{
 		OK = 0,
@@ -1008,6 +1117,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the status of a CardDAV synchronization. 
 	/// </summary>
+	
 	public enum FriendListSyncStatus
 	{
 		Started = 0,
@@ -1019,6 +1129,7 @@ namespace Linphone
 	/// LinphoneGlobalState describes the global state of the <see cref="Linphone.Core"
 	/// /> object. 
 	/// </summary>
+	
 	public enum GlobalState
 	{
 		Off = 0,
@@ -1031,6 +1142,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing ICE states. 
 	/// </summary>
+	
 	public enum IceState
 	{
 		/// <summary>
@@ -1060,6 +1172,7 @@ namespace Linphone
 		RelayConnection = 5,
 	}
 
+	
 	public enum LimeState
 	{
 		/// <summary>
@@ -1076,6 +1189,7 @@ namespace Linphone
 		Preferred = 2,
 	}
 
+	
 	public enum LogCollectionState
 	{
 		Disabled = 0,
@@ -1086,6 +1200,7 @@ namespace Linphone
 	/// <summary>
 	/// Verbosity levels of log messages. 
 	/// </summary>
+	[Flags]
 	public enum LogLevel
 	{
 		/// <summary>
@@ -1117,6 +1232,7 @@ namespace Linphone
 	/// <summary>
 	/// Indicates for a given media the stream direction. 
 	/// </summary>
+	
 	public enum MediaDirection
 	{
 		Invalid = -1,
@@ -1138,6 +1254,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing type of media encryption types. 
 	/// </summary>
+	
 	public enum MediaEncryption
 	{
 		/// <summary>
@@ -1161,6 +1278,7 @@ namespace Linphone
 	/// <summary>
 	/// The state of a LinphonePlayer. 
 	/// </summary>
+	
 	public enum PlayerState
 	{
 		/// <summary>
@@ -1180,6 +1298,7 @@ namespace Linphone
 	/// <summary>
 	/// Activities as defined in section 3.2 of RFC 4480. 
 	/// </summary>
+	
 	public enum PresenceActivityType
 	{
 		/// <summary>
@@ -1303,6 +1422,7 @@ namespace Linphone
 	/// <summary>
 	/// Basic status as defined in section 4.1.4 of RFC 3863. 
 	/// </summary>
+	
 	public enum PresenceBasicStatus
 	{
 		/// <summary>
@@ -1320,6 +1440,7 @@ namespace Linphone
 	/// <summary>
 	/// Defines privacy policy to apply as described by rfc3323. 
 	/// </summary>
+	
 	public enum Privacy
 	{
 		/// <summary>
@@ -1360,6 +1481,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum for publish states. 
 	/// </summary>
+	
 	public enum PublishState
 	{
 		/// <summary>
@@ -1394,6 +1516,7 @@ namespace Linphone
 	/// Enum describing various failure reasons or contextual information for some
 	/// events. 
 	/// </summary>
+	
 	public enum Reason
 	{
 		/// <summary>
@@ -1486,6 +1609,7 @@ namespace Linphone
 	/// <summary>
 	/// LinphoneRegistrationState describes proxy registration states. 
 	/// </summary>
+	
 	public enum RegistrationState
 	{
 		/// <summary>
@@ -1511,8 +1635,37 @@ namespace Linphone
 	}
 
 	/// <summary>
+	/// LinphoneSecurityEventType is used to indicate the type of security event. 
+	/// </summary>
+	
+	public enum SecurityEventType
+	{
+		/// <summary>
+		/// Event is not a security event. 
+		/// </summary>
+		None = 0,
+		/// <summary>
+		/// Chatroom security level downgraded event. 
+		/// </summary>
+		SecurityLevelDowngraded = 1,
+		/// <summary>
+		/// Participant has exceeded the maximum number of device event. 
+		/// </summary>
+		ParticipantMaxDeviceCountExceeded = 2,
+		/// <summary>
+		/// Peer device instant messaging encryption identity key has changed event. 
+		/// </summary>
+		EncryptionIdentityKeyChanged = 3,
+		/// <summary>
+		/// Man in the middle detected event. 
+		/// </summary>
+		ManInTheMiddleDetected = 4,
+	}
+
+	/// <summary>
 	/// Enum describing the stream types. 
 	/// </summary>
+	
 	public enum StreamType
 	{
 		Audio = 0,
@@ -1524,6 +1677,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum controlling behavior for incoming subscription request. 
 	/// </summary>
+	
 	public enum SubscribePolicy
 	{
 		/// <summary>
@@ -1543,6 +1697,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum for subscription direction (incoming or outgoing). 
 	/// </summary>
+	
 	public enum SubscriptionDir
 	{
 		/// <summary>
@@ -1562,6 +1717,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum for subscription states. 
 	/// </summary>
+	
 	public enum SubscriptionState
 	{
 		/// <summary>
@@ -1603,6 +1759,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum listing frequent telephony tones. 
 	/// </summary>
+	
 	public enum ToneID
 	{
 		/// <summary>
@@ -1627,6 +1784,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing transport type for LinphoneAddress. 
 	/// </summary>
+	
 	public enum TransportType
 	{
 		Udp = 0,
@@ -1638,6 +1796,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the tunnel modes. 
 	/// </summary>
+	
 	public enum TunnelMode
 	{
 		/// <summary>
@@ -1657,6 +1816,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing uPnP states. 
 	/// </summary>
+	
 	public enum UpnpState
 	{
 		/// <summary>
@@ -1696,6 +1856,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the result of a version update check. 
 	/// </summary>
+	
 	public enum VersionUpdateCheckResult
 	{
 		UpToDate = 0,
@@ -1706,6 +1867,7 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the types of argument for LinphoneXmlRpcRequest. 
 	/// </summary>
+	
 	public enum XmlRpcArgType
 	{
 		None = 0,
@@ -1716,11 +1878,32 @@ namespace Linphone
 	/// <summary>
 	/// Enum describing the status of a LinphoneXmlRpcRequest. 
 	/// </summary>
+	
 	public enum XmlRpcStatus
 	{
 		Pending = 0,
 		Ok = 1,
 		Failed = 2,
+	}
+
+	/// <summary>
+	/// Enum describing the ZRTP SAS validation status of a peer URI. 
+	/// </summary>
+	
+	public enum ZrtpPeerStatus
+	{
+		/// <summary>
+		/// Peer URI unkown or never validated/invalidated the SAS. 
+		/// </summary>
+		Unknown = 0,
+		/// <summary>
+		/// Peer URI SAS rejected in database. 
+		/// </summary>
+		Invalid = 1,
+		/// <summary>
+		/// Peer URI SAS validated in database. 
+		/// </summary>
+		Valid = 2,
 	}
 
 #endregion
@@ -2821,92 +3004,6 @@ namespace Linphone
 	{
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_undecryptable_message_received(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_undecryptable_message_received(IntPtr thiz, OnUndecryptableMessageReceivedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnUndecryptableMessageReceivedDelegatePrivate(IntPtr cr, IntPtr msg);
-
-		public delegate void OnUndecryptableMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
-		private OnUndecryptableMessageReceivedDelegatePrivate on_undecryptable_message_received_private;
-		private OnUndecryptableMessageReceivedDelegate on_undecryptable_message_received_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnUndecryptableMessageReceivedDelegatePrivate))]
-#endif
-		private static void on_undecryptable_message_received(IntPtr cr, IntPtr msg)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_undecryptable_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
-		}
-
-		public OnUndecryptableMessageReceivedDelegate OnUndecryptableMessageReceived
-		{
-			get
-			{
-				return on_undecryptable_message_received_public;
-			}
-			set
-			{
-				on_undecryptable_message_received_public = value;
-#if WINDOWS_UWP
-				on_undecryptable_message_received_private = on_undecryptable_message_received;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_undecryptable_message_received_private);
-				linphone_chat_room_cbs_set_undecryptable_message_received(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_undecryptable_message_received(nativePtr, on_undecryptable_message_received);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_conference_left(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_conference_left(IntPtr thiz, OnConferenceLeftDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnConferenceLeftDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnConferenceLeftDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnConferenceLeftDelegatePrivate on_conference_left_private;
-		private OnConferenceLeftDelegate on_conference_left_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnConferenceLeftDelegatePrivate))]
-#endif
-		private static void on_conference_left(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_conference_left_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnConferenceLeftDelegate OnConferenceLeft
-		{
-			get
-			{
-				return on_conference_left_public;
-			}
-			set
-			{
-				on_conference_left_public = value;
-#if WINDOWS_UWP
-				on_conference_left_private = on_conference_left;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_left_private);
-				linphone_chat_room_cbs_set_conference_left(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_conference_left(nativePtr, on_conference_left);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
 		static extern void linphone_chat_room_cbs_set_state_changed(IntPtr thiz, IntPtr cb);
 #else
 		static extern void linphone_chat_room_cbs_set_state_changed(IntPtr thiz, OnStateChangedDelegatePrivate cb);
@@ -2950,350 +3047,6 @@ namespace Linphone
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_participant_added(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_participant_added(IntPtr thiz, OnParticipantAddedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnParticipantAddedDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnParticipantAddedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnParticipantAddedDelegatePrivate on_participant_added_private;
-		private OnParticipantAddedDelegate on_participant_added_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnParticipantAddedDelegatePrivate))]
-#endif
-		private static void on_participant_added(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_participant_added_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnParticipantAddedDelegate OnParticipantAdded
-		{
-			get
-			{
-				return on_participant_added_public;
-			}
-			set
-			{
-				on_participant_added_public = value;
-#if WINDOWS_UWP
-				on_participant_added_private = on_participant_added;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_added_private);
-				linphone_chat_room_cbs_set_participant_added(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_participant_added(nativePtr, on_participant_added);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_subject_changed(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_subject_changed(IntPtr thiz, OnSubjectChangedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnSubjectChangedDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnSubjectChangedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnSubjectChangedDelegatePrivate on_subject_changed_private;
-		private OnSubjectChangedDelegate on_subject_changed_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnSubjectChangedDelegatePrivate))]
-#endif
-		private static void on_subject_changed(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_subject_changed_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnSubjectChangedDelegate OnSubjectChanged
-		{
-			get
-			{
-				return on_subject_changed_public;
-			}
-			set
-			{
-				on_subject_changed_public = value;
-#if WINDOWS_UWP
-				on_subject_changed_private = on_subject_changed;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_subject_changed_private);
-				linphone_chat_room_cbs_set_subject_changed(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_subject_changed(nativePtr, on_subject_changed);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_is_composing_received(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_is_composing_received(IntPtr thiz, OnIsComposingReceivedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnIsComposingReceivedDelegatePrivate(IntPtr cr, IntPtr remoteAddr, char isComposing);
-
-		public delegate void OnIsComposingReceivedDelegate(Linphone.ChatRoom cr, Linphone.Address remoteAddr, bool isComposing);
-		private OnIsComposingReceivedDelegatePrivate on_is_composing_received_private;
-		private OnIsComposingReceivedDelegate on_is_composing_received_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnIsComposingReceivedDelegatePrivate))]
-#endif
-		private static void on_is_composing_received(IntPtr cr, IntPtr remoteAddr, char isComposing)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_is_composing_received_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(remoteAddr), isComposing == 0);
-		}
-
-		public OnIsComposingReceivedDelegate OnIsComposingReceived
-		{
-			get
-			{
-				return on_is_composing_received_public;
-			}
-			set
-			{
-				on_is_composing_received_public = value;
-#if WINDOWS_UWP
-				on_is_composing_received_private = on_is_composing_received;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_is_composing_received_private);
-				linphone_chat_room_cbs_set_is_composing_received(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_is_composing_received(nativePtr, on_is_composing_received);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_conference_address_generation(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_conference_address_generation(IntPtr thiz, OnConferenceAddressGenerationDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnConferenceAddressGenerationDelegatePrivate(IntPtr cr);
-
-		public delegate void OnConferenceAddressGenerationDelegate(Linphone.ChatRoom cr);
-		private OnConferenceAddressGenerationDelegatePrivate on_conference_address_generation_private;
-		private OnConferenceAddressGenerationDelegate on_conference_address_generation_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnConferenceAddressGenerationDelegatePrivate))]
-#endif
-		private static void on_conference_address_generation(IntPtr cr)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_conference_address_generation_public?.Invoke(thiz);
-		}
-
-		public OnConferenceAddressGenerationDelegate OnConferenceAddressGeneration
-		{
-			get
-			{
-				return on_conference_address_generation_public;
-			}
-			set
-			{
-				on_conference_address_generation_public = value;
-#if WINDOWS_UWP
-				on_conference_address_generation_private = on_conference_address_generation;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_address_generation_private);
-				linphone_chat_room_cbs_set_conference_address_generation(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_conference_address_generation(nativePtr, on_conference_address_generation);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_chat_message_sent(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_chat_message_sent(IntPtr thiz, OnChatMessageSentDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnChatMessageSentDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnChatMessageSentDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnChatMessageSentDelegatePrivate on_chat_message_sent_private;
-		private OnChatMessageSentDelegate on_chat_message_sent_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnChatMessageSentDelegatePrivate))]
-#endif
-		private static void on_chat_message_sent(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_chat_message_sent_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnChatMessageSentDelegate OnChatMessageSent
-		{
-			get
-			{
-				return on_chat_message_sent_public;
-			}
-			set
-			{
-				on_chat_message_sent_public = value;
-#if WINDOWS_UWP
-				on_chat_message_sent_private = on_chat_message_sent;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_sent_private);
-				linphone_chat_room_cbs_set_chat_message_sent(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_chat_message_sent(nativePtr, on_chat_message_sent);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_participant_registration_subscription_requested(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_participant_registration_subscription_requested(IntPtr thiz, OnParticipantRegistrationSubscriptionRequestedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnParticipantRegistrationSubscriptionRequestedDelegatePrivate(IntPtr cr, IntPtr participantAddr);
-
-		public delegate void OnParticipantRegistrationSubscriptionRequestedDelegate(Linphone.ChatRoom cr, Linphone.Address participantAddr);
-		private OnParticipantRegistrationSubscriptionRequestedDelegatePrivate on_participant_registration_subscription_requested_private;
-		private OnParticipantRegistrationSubscriptionRequestedDelegate on_participant_registration_subscription_requested_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnParticipantRegistrationSubscriptionRequestedDelegatePrivate))]
-#endif
-		private static void on_participant_registration_subscription_requested(IntPtr cr, IntPtr participantAddr)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_participant_registration_subscription_requested_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(participantAddr));
-		}
-
-		public OnParticipantRegistrationSubscriptionRequestedDelegate OnParticipantRegistrationSubscriptionRequested
-		{
-			get
-			{
-				return on_participant_registration_subscription_requested_public;
-			}
-			set
-			{
-				on_participant_registration_subscription_requested_public = value;
-#if WINDOWS_UWP
-				on_participant_registration_subscription_requested_private = on_participant_registration_subscription_requested;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_registration_subscription_requested_private);
-				linphone_chat_room_cbs_set_participant_registration_subscription_requested(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_participant_registration_subscription_requested(nativePtr, on_participant_registration_subscription_requested);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_chat_message_received(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_chat_message_received(IntPtr thiz, OnChatMessageReceivedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnChatMessageReceivedDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnChatMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnChatMessageReceivedDelegatePrivate on_chat_message_received_private;
-		private OnChatMessageReceivedDelegate on_chat_message_received_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnChatMessageReceivedDelegatePrivate))]
-#endif
-		private static void on_chat_message_received(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_chat_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnChatMessageReceivedDelegate OnChatMessageReceived
-		{
-			get
-			{
-				return on_chat_message_received_public;
-			}
-			set
-			{
-				on_chat_message_received_public = value;
-#if WINDOWS_UWP
-				on_chat_message_received_private = on_chat_message_received;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_received_private);
-				linphone_chat_room_cbs_set_chat_message_received(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_chat_message_received(nativePtr, on_chat_message_received);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_chat_message_should_be_stored(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_chat_message_should_be_stored(IntPtr thiz, OnChatMessageShouldBeStoredDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnChatMessageShouldBeStoredDelegatePrivate(IntPtr cr, IntPtr msg);
-
-		public delegate void OnChatMessageShouldBeStoredDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
-		private OnChatMessageShouldBeStoredDelegatePrivate on_chat_message_should_be_stored_private;
-		private OnChatMessageShouldBeStoredDelegate on_chat_message_should_be_stored_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnChatMessageShouldBeStoredDelegatePrivate))]
-#endif
-		private static void on_chat_message_should_be_stored(IntPtr cr, IntPtr msg)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_chat_message_should_be_stored_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
-		}
-
-		public OnChatMessageShouldBeStoredDelegate OnChatMessageShouldBeStored
-		{
-			get
-			{
-				return on_chat_message_should_be_stored_public;
-			}
-			set
-			{
-				on_chat_message_should_be_stored_public = value;
-#if WINDOWS_UWP
-				on_chat_message_should_be_stored_private = on_chat_message_should_be_stored;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_should_be_stored_private);
-				linphone_chat_room_cbs_set_chat_message_should_be_stored(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_chat_message_should_be_stored(nativePtr, on_chat_message_should_be_stored);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
 		static extern void linphone_chat_room_cbs_set_participant_admin_status_changed(IntPtr thiz, IntPtr cb);
 #else
 		static extern void linphone_chat_room_cbs_set_participant_admin_status_changed(IntPtr thiz, OnParticipantAdminStatusChangedDelegatePrivate cb);
@@ -3332,135 +3085,6 @@ namespace Linphone
 				linphone_chat_room_cbs_set_participant_admin_status_changed(nativePtr, cb);
 #else
 				linphone_chat_room_cbs_set_participant_admin_status_changed(nativePtr, on_participant_admin_status_changed);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_message_received(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_message_received(IntPtr thiz, OnMessageReceivedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnMessageReceivedDelegatePrivate(IntPtr cr, IntPtr msg);
-
-		public delegate void OnMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
-		private OnMessageReceivedDelegatePrivate on_message_received_private;
-		private OnMessageReceivedDelegate on_message_received_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnMessageReceivedDelegatePrivate))]
-#endif
-		private static void on_message_received(IntPtr cr, IntPtr msg)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
-		}
-
-		public OnMessageReceivedDelegate OnMessageReceived
-		{
-			get
-			{
-				return on_message_received_public;
-			}
-			set
-			{
-				on_message_received_public = value;
-#if WINDOWS_UWP
-				on_message_received_private = on_message_received;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_message_received_private);
-				linphone_chat_room_cbs_set_message_received(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_message_received(nativePtr, on_message_received);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_participant_device_removed(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_participant_device_removed(IntPtr thiz, OnParticipantDeviceRemovedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnParticipantDeviceRemovedDelegatePrivate(IntPtr cr, IntPtr eventLog);
-
-		public delegate void OnParticipantDeviceRemovedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnParticipantDeviceRemovedDelegatePrivate on_participant_device_removed_private;
-		private OnParticipantDeviceRemovedDelegate on_participant_device_removed_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnParticipantDeviceRemovedDelegatePrivate))]
-#endif
-		private static void on_participant_device_removed(IntPtr cr, IntPtr eventLog)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_participant_device_removed_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
-		}
-
-		public OnParticipantDeviceRemovedDelegate OnParticipantDeviceRemoved
-		{
-			get
-			{
-				return on_participant_device_removed_public;
-			}
-			set
-			{
-				on_participant_device_removed_public = value;
-#if WINDOWS_UWP
-				on_participant_device_removed_private = on_participant_device_removed;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_device_removed_private);
-				linphone_chat_room_cbs_set_participant_device_removed(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_participant_device_removed(nativePtr, on_participant_device_removed);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_participants_capabilities_checked(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_chat_room_cbs_set_participants_capabilities_checked(IntPtr thiz, OnParticipantsCapabilitiesCheckedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnParticipantsCapabilitiesCheckedDelegatePrivate(IntPtr cr, IntPtr deviceAddr, IntPtr participantsAddr);
-
-		public delegate void OnParticipantsCapabilitiesCheckedDelegate(Linphone.ChatRoom cr, Linphone.Address deviceAddr, IEnumerable<Linphone.Address> participantsAddr);
-		private OnParticipantsCapabilitiesCheckedDelegatePrivate on_participants_capabilities_checked_private;
-		private OnParticipantsCapabilitiesCheckedDelegate on_participants_capabilities_checked_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnParticipantsCapabilitiesCheckedDelegatePrivate))]
-#endif
-		private static void on_participants_capabilities_checked(IntPtr cr, IntPtr deviceAddr, IntPtr participantsAddr)
-		{
-			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
-			
-			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_participants_capabilities_checked_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(deviceAddr), MarshalBctbxList<Linphone.Address>(participantsAddr));
-		}
-
-		public OnParticipantsCapabilitiesCheckedDelegate OnParticipantsCapabilitiesChecked
-		{
-			get
-			{
-				return on_participants_capabilities_checked_public;
-			}
-			set
-			{
-				on_participants_capabilities_checked_public = value;
-#if WINDOWS_UWP
-				on_participants_capabilities_checked_private = on_participants_capabilities_checked;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participants_capabilities_checked_private);
-				linphone_chat_room_cbs_set_participants_capabilities_checked(nativePtr, cb);
-#else
-				linphone_chat_room_cbs_set_participants_capabilities_checked(nativePtr, on_participants_capabilities_checked);
 #endif
 			}
 		}
@@ -3552,87 +3176,259 @@ namespace Linphone
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_conference_joined(IntPtr thiz, IntPtr cb);
+		static extern void linphone_chat_room_cbs_set_undecryptable_message_received(IntPtr thiz, IntPtr cb);
 #else
-		static extern void linphone_chat_room_cbs_set_conference_joined(IntPtr thiz, OnConferenceJoinedDelegatePrivate cb);
+		static extern void linphone_chat_room_cbs_set_undecryptable_message_received(IntPtr thiz, OnUndecryptableMessageReceivedDelegatePrivate cb);
 #endif
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnConferenceJoinedDelegatePrivate(IntPtr cr, IntPtr eventLog);
+		private delegate void OnUndecryptableMessageReceivedDelegatePrivate(IntPtr cr, IntPtr msg);
 
-		public delegate void OnConferenceJoinedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
-		private OnConferenceJoinedDelegatePrivate on_conference_joined_private;
-		private OnConferenceJoinedDelegate on_conference_joined_public;
+		public delegate void OnUndecryptableMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
+		private OnUndecryptableMessageReceivedDelegatePrivate on_undecryptable_message_received_private;
+		private OnUndecryptableMessageReceivedDelegate on_undecryptable_message_received_public;
 
 #if __IOS__
-		[MonoPInvokeCallback(typeof(OnConferenceJoinedDelegatePrivate))]
+		[MonoPInvokeCallback(typeof(OnUndecryptableMessageReceivedDelegatePrivate))]
 #endif
-		private static void on_conference_joined(IntPtr cr, IntPtr eventLog)
+		private static void on_undecryptable_message_received(IntPtr cr, IntPtr msg)
 		{
 			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
 			
 			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_conference_joined_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+			listener.on_undecryptable_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
 		}
 
-		public OnConferenceJoinedDelegate OnConferenceJoined
+		public OnUndecryptableMessageReceivedDelegate OnUndecryptableMessageReceived
 		{
 			get
 			{
-				return on_conference_joined_public;
+				return on_undecryptable_message_received_public;
 			}
 			set
 			{
-				on_conference_joined_public = value;
+				on_undecryptable_message_received_public = value;
 #if WINDOWS_UWP
-				on_conference_joined_private = on_conference_joined;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_joined_private);
-				linphone_chat_room_cbs_set_conference_joined(nativePtr, cb);
+				on_undecryptable_message_received_private = on_undecryptable_message_received;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_undecryptable_message_received_private);
+				linphone_chat_room_cbs_set_undecryptable_message_received(nativePtr, cb);
 #else
-				linphone_chat_room_cbs_set_conference_joined(nativePtr, on_conference_joined);
+				linphone_chat_room_cbs_set_undecryptable_message_received(nativePtr, on_undecryptable_message_received);
 #endif
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
-		static extern void linphone_chat_room_cbs_set_participant_device_fetch_requested(IntPtr thiz, IntPtr cb);
+		static extern void linphone_chat_room_cbs_set_participant_added(IntPtr thiz, IntPtr cb);
 #else
-		static extern void linphone_chat_room_cbs_set_participant_device_fetch_requested(IntPtr thiz, OnParticipantDeviceFetchRequestedDelegatePrivate cb);
+		static extern void linphone_chat_room_cbs_set_participant_added(IntPtr thiz, OnParticipantAddedDelegatePrivate cb);
 #endif
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnParticipantDeviceFetchRequestedDelegatePrivate(IntPtr cr, IntPtr participantAddr);
+		private delegate void OnParticipantAddedDelegatePrivate(IntPtr cr, IntPtr eventLog);
 
-		public delegate void OnParticipantDeviceFetchRequestedDelegate(Linphone.ChatRoom cr, Linphone.Address participantAddr);
-		private OnParticipantDeviceFetchRequestedDelegatePrivate on_participant_device_fetch_requested_private;
-		private OnParticipantDeviceFetchRequestedDelegate on_participant_device_fetch_requested_public;
+		public delegate void OnParticipantAddedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnParticipantAddedDelegatePrivate on_participant_added_private;
+		private OnParticipantAddedDelegate on_participant_added_public;
 
 #if __IOS__
-		[MonoPInvokeCallback(typeof(OnParticipantDeviceFetchRequestedDelegatePrivate))]
+		[MonoPInvokeCallback(typeof(OnParticipantAddedDelegatePrivate))]
 #endif
-		private static void on_participant_device_fetch_requested(IntPtr cr, IntPtr participantAddr)
+		private static void on_participant_added(IntPtr cr, IntPtr eventLog)
 		{
 			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
 			
 			ChatRoomListener listener = thiz.CurrentCallbacks;
-			listener.on_participant_device_fetch_requested_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(participantAddr));
+			listener.on_participant_added_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
 		}
 
-		public OnParticipantDeviceFetchRequestedDelegate OnParticipantDeviceFetchRequested
+		public OnParticipantAddedDelegate OnParticipantAdded
 		{
 			get
 			{
-				return on_participant_device_fetch_requested_public;
+				return on_participant_added_public;
 			}
 			set
 			{
-				on_participant_device_fetch_requested_public = value;
+				on_participant_added_public = value;
 #if WINDOWS_UWP
-				on_participant_device_fetch_requested_private = on_participant_device_fetch_requested;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_device_fetch_requested_private);
-				linphone_chat_room_cbs_set_participant_device_fetch_requested(nativePtr, cb);
+				on_participant_added_private = on_participant_added;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_added_private);
+				linphone_chat_room_cbs_set_participant_added(nativePtr, cb);
 #else
-				linphone_chat_room_cbs_set_participant_device_fetch_requested(nativePtr, on_participant_device_fetch_requested);
+				linphone_chat_room_cbs_set_participant_added(nativePtr, on_participant_added);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_message_received(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_message_received(IntPtr thiz, OnMessageReceivedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnMessageReceivedDelegatePrivate(IntPtr cr, IntPtr msg);
+
+		public delegate void OnMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
+		private OnMessageReceivedDelegatePrivate on_message_received_private;
+		private OnMessageReceivedDelegate on_message_received_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnMessageReceivedDelegatePrivate))]
+#endif
+		private static void on_message_received(IntPtr cr, IntPtr msg)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
+		}
+
+		public OnMessageReceivedDelegate OnMessageReceived
+		{
+			get
+			{
+				return on_message_received_public;
+			}
+			set
+			{
+				on_message_received_public = value;
+#if WINDOWS_UWP
+				on_message_received_private = on_message_received;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_message_received_private);
+				linphone_chat_room_cbs_set_message_received(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_message_received(nativePtr, on_message_received);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_chat_message_received(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_chat_message_received(IntPtr thiz, OnChatMessageReceivedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnChatMessageReceivedDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnChatMessageReceivedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnChatMessageReceivedDelegatePrivate on_chat_message_received_private;
+		private OnChatMessageReceivedDelegate on_chat_message_received_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnChatMessageReceivedDelegatePrivate))]
+#endif
+		private static void on_chat_message_received(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_chat_message_received_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnChatMessageReceivedDelegate OnChatMessageReceived
+		{
+			get
+			{
+				return on_chat_message_received_public;
+			}
+			set
+			{
+				on_chat_message_received_public = value;
+#if WINDOWS_UWP
+				on_chat_message_received_private = on_chat_message_received;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_received_private);
+				linphone_chat_room_cbs_set_chat_message_received(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_chat_message_received(nativePtr, on_chat_message_received);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_conference_address_generation(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_conference_address_generation(IntPtr thiz, OnConferenceAddressGenerationDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnConferenceAddressGenerationDelegatePrivate(IntPtr cr);
+
+		public delegate void OnConferenceAddressGenerationDelegate(Linphone.ChatRoom cr);
+		private OnConferenceAddressGenerationDelegatePrivate on_conference_address_generation_private;
+		private OnConferenceAddressGenerationDelegate on_conference_address_generation_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnConferenceAddressGenerationDelegatePrivate))]
+#endif
+		private static void on_conference_address_generation(IntPtr cr)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_conference_address_generation_public?.Invoke(thiz);
+		}
+
+		public OnConferenceAddressGenerationDelegate OnConferenceAddressGeneration
+		{
+			get
+			{
+				return on_conference_address_generation_public;
+			}
+			set
+			{
+				on_conference_address_generation_public = value;
+#if WINDOWS_UWP
+				on_conference_address_generation_private = on_conference_address_generation;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_address_generation_private);
+				linphone_chat_room_cbs_set_conference_address_generation(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_conference_address_generation(nativePtr, on_conference_address_generation);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_participants_capabilities_checked(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_participants_capabilities_checked(IntPtr thiz, OnParticipantsCapabilitiesCheckedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnParticipantsCapabilitiesCheckedDelegatePrivate(IntPtr cr, IntPtr deviceAddr, IntPtr participantsAddr);
+
+		public delegate void OnParticipantsCapabilitiesCheckedDelegate(Linphone.ChatRoom cr, Linphone.Address deviceAddr, IEnumerable<Linphone.Address> participantsAddr);
+		private OnParticipantsCapabilitiesCheckedDelegatePrivate on_participants_capabilities_checked_private;
+		private OnParticipantsCapabilitiesCheckedDelegate on_participants_capabilities_checked_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnParticipantsCapabilitiesCheckedDelegatePrivate))]
+#endif
+		private static void on_participants_capabilities_checked(IntPtr cr, IntPtr deviceAddr, IntPtr participantsAddr)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_participants_capabilities_checked_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(deviceAddr), MarshalBctbxList<Linphone.Address>(participantsAddr));
+		}
+
+		public OnParticipantsCapabilitiesCheckedDelegate OnParticipantsCapabilitiesChecked
+		{
+			get
+			{
+				return on_participants_capabilities_checked_public;
+			}
+			set
+			{
+				on_participants_capabilities_checked_public = value;
+#if WINDOWS_UWP
+				on_participants_capabilities_checked_private = on_participants_capabilities_checked;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participants_capabilities_checked_private);
+				linphone_chat_room_cbs_set_participants_capabilities_checked(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_participants_capabilities_checked(nativePtr, on_participants_capabilities_checked);
 #endif
 			}
 		}
@@ -3676,6 +3472,436 @@ namespace Linphone
 				linphone_chat_room_cbs_set_participant_device_added(nativePtr, cb);
 #else
 				linphone_chat_room_cbs_set_participant_device_added(nativePtr, on_participant_device_added);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_security_event(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_security_event(IntPtr thiz, OnSecurityEventDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnSecurityEventDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnSecurityEventDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnSecurityEventDelegatePrivate on_security_event_private;
+		private OnSecurityEventDelegate on_security_event_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnSecurityEventDelegatePrivate))]
+#endif
+		private static void on_security_event(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_security_event_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnSecurityEventDelegate OnSecurityEvent
+		{
+			get
+			{
+				return on_security_event_public;
+			}
+			set
+			{
+				on_security_event_public = value;
+#if WINDOWS_UWP
+				on_security_event_private = on_security_event;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_security_event_private);
+				linphone_chat_room_cbs_set_security_event(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_security_event(nativePtr, on_security_event);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_conference_left(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_conference_left(IntPtr thiz, OnConferenceLeftDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnConferenceLeftDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnConferenceLeftDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnConferenceLeftDelegatePrivate on_conference_left_private;
+		private OnConferenceLeftDelegate on_conference_left_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnConferenceLeftDelegatePrivate))]
+#endif
+		private static void on_conference_left(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_conference_left_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnConferenceLeftDelegate OnConferenceLeft
+		{
+			get
+			{
+				return on_conference_left_public;
+			}
+			set
+			{
+				on_conference_left_public = value;
+#if WINDOWS_UWP
+				on_conference_left_private = on_conference_left;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_left_private);
+				linphone_chat_room_cbs_set_conference_left(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_conference_left(nativePtr, on_conference_left);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_subject_changed(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_subject_changed(IntPtr thiz, OnSubjectChangedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnSubjectChangedDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnSubjectChangedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnSubjectChangedDelegatePrivate on_subject_changed_private;
+		private OnSubjectChangedDelegate on_subject_changed_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnSubjectChangedDelegatePrivate))]
+#endif
+		private static void on_subject_changed(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_subject_changed_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnSubjectChangedDelegate OnSubjectChanged
+		{
+			get
+			{
+				return on_subject_changed_public;
+			}
+			set
+			{
+				on_subject_changed_public = value;
+#if WINDOWS_UWP
+				on_subject_changed_private = on_subject_changed;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_subject_changed_private);
+				linphone_chat_room_cbs_set_subject_changed(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_subject_changed(nativePtr, on_subject_changed);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_chat_message_sent(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_chat_message_sent(IntPtr thiz, OnChatMessageSentDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnChatMessageSentDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnChatMessageSentDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnChatMessageSentDelegatePrivate on_chat_message_sent_private;
+		private OnChatMessageSentDelegate on_chat_message_sent_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnChatMessageSentDelegatePrivate))]
+#endif
+		private static void on_chat_message_sent(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_chat_message_sent_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnChatMessageSentDelegate OnChatMessageSent
+		{
+			get
+			{
+				return on_chat_message_sent_public;
+			}
+			set
+			{
+				on_chat_message_sent_public = value;
+#if WINDOWS_UWP
+				on_chat_message_sent_private = on_chat_message_sent;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_sent_private);
+				linphone_chat_room_cbs_set_chat_message_sent(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_chat_message_sent(nativePtr, on_chat_message_sent);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_conference_joined(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_conference_joined(IntPtr thiz, OnConferenceJoinedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnConferenceJoinedDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnConferenceJoinedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnConferenceJoinedDelegatePrivate on_conference_joined_private;
+		private OnConferenceJoinedDelegate on_conference_joined_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnConferenceJoinedDelegatePrivate))]
+#endif
+		private static void on_conference_joined(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_conference_joined_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnConferenceJoinedDelegate OnConferenceJoined
+		{
+			get
+			{
+				return on_conference_joined_public;
+			}
+			set
+			{
+				on_conference_joined_public = value;
+#if WINDOWS_UWP
+				on_conference_joined_private = on_conference_joined;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_conference_joined_private);
+				linphone_chat_room_cbs_set_conference_joined(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_conference_joined(nativePtr, on_conference_joined);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_participant_registration_subscription_requested(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_participant_registration_subscription_requested(IntPtr thiz, OnParticipantRegistrationSubscriptionRequestedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnParticipantRegistrationSubscriptionRequestedDelegatePrivate(IntPtr cr, IntPtr participantAddr);
+
+		public delegate void OnParticipantRegistrationSubscriptionRequestedDelegate(Linphone.ChatRoom cr, Linphone.Address participantAddr);
+		private OnParticipantRegistrationSubscriptionRequestedDelegatePrivate on_participant_registration_subscription_requested_private;
+		private OnParticipantRegistrationSubscriptionRequestedDelegate on_participant_registration_subscription_requested_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnParticipantRegistrationSubscriptionRequestedDelegatePrivate))]
+#endif
+		private static void on_participant_registration_subscription_requested(IntPtr cr, IntPtr participantAddr)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_participant_registration_subscription_requested_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(participantAddr));
+		}
+
+		public OnParticipantRegistrationSubscriptionRequestedDelegate OnParticipantRegistrationSubscriptionRequested
+		{
+			get
+			{
+				return on_participant_registration_subscription_requested_public;
+			}
+			set
+			{
+				on_participant_registration_subscription_requested_public = value;
+#if WINDOWS_UWP
+				on_participant_registration_subscription_requested_private = on_participant_registration_subscription_requested;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_registration_subscription_requested_private);
+				linphone_chat_room_cbs_set_participant_registration_subscription_requested(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_participant_registration_subscription_requested(nativePtr, on_participant_registration_subscription_requested);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_participant_device_removed(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_participant_device_removed(IntPtr thiz, OnParticipantDeviceRemovedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnParticipantDeviceRemovedDelegatePrivate(IntPtr cr, IntPtr eventLog);
+
+		public delegate void OnParticipantDeviceRemovedDelegate(Linphone.ChatRoom cr, Linphone.EventLog eventLog);
+		private OnParticipantDeviceRemovedDelegatePrivate on_participant_device_removed_private;
+		private OnParticipantDeviceRemovedDelegate on_participant_device_removed_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnParticipantDeviceRemovedDelegatePrivate))]
+#endif
+		private static void on_participant_device_removed(IntPtr cr, IntPtr eventLog)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_participant_device_removed_public?.Invoke(thiz, fromNativePtr<Linphone.EventLog>(eventLog));
+		}
+
+		public OnParticipantDeviceRemovedDelegate OnParticipantDeviceRemoved
+		{
+			get
+			{
+				return on_participant_device_removed_public;
+			}
+			set
+			{
+				on_participant_device_removed_public = value;
+#if WINDOWS_UWP
+				on_participant_device_removed_private = on_participant_device_removed;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_device_removed_private);
+				linphone_chat_room_cbs_set_participant_device_removed(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_participant_device_removed(nativePtr, on_participant_device_removed);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_is_composing_received(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_is_composing_received(IntPtr thiz, OnIsComposingReceivedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnIsComposingReceivedDelegatePrivate(IntPtr cr, IntPtr remoteAddr, char isComposing);
+
+		public delegate void OnIsComposingReceivedDelegate(Linphone.ChatRoom cr, Linphone.Address remoteAddr, bool isComposing);
+		private OnIsComposingReceivedDelegatePrivate on_is_composing_received_private;
+		private OnIsComposingReceivedDelegate on_is_composing_received_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnIsComposingReceivedDelegatePrivate))]
+#endif
+		private static void on_is_composing_received(IntPtr cr, IntPtr remoteAddr, char isComposing)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_is_composing_received_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(remoteAddr), isComposing == 0);
+		}
+
+		public OnIsComposingReceivedDelegate OnIsComposingReceived
+		{
+			get
+			{
+				return on_is_composing_received_public;
+			}
+			set
+			{
+				on_is_composing_received_public = value;
+#if WINDOWS_UWP
+				on_is_composing_received_private = on_is_composing_received;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_is_composing_received_private);
+				linphone_chat_room_cbs_set_is_composing_received(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_is_composing_received(nativePtr, on_is_composing_received);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_chat_message_should_be_stored(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_chat_message_should_be_stored(IntPtr thiz, OnChatMessageShouldBeStoredDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnChatMessageShouldBeStoredDelegatePrivate(IntPtr cr, IntPtr msg);
+
+		public delegate void OnChatMessageShouldBeStoredDelegate(Linphone.ChatRoom cr, Linphone.ChatMessage msg);
+		private OnChatMessageShouldBeStoredDelegatePrivate on_chat_message_should_be_stored_private;
+		private OnChatMessageShouldBeStoredDelegate on_chat_message_should_be_stored_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnChatMessageShouldBeStoredDelegatePrivate))]
+#endif
+		private static void on_chat_message_should_be_stored(IntPtr cr, IntPtr msg)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_chat_message_should_be_stored_public?.Invoke(thiz, fromNativePtr<Linphone.ChatMessage>(msg));
+		}
+
+		public OnChatMessageShouldBeStoredDelegate OnChatMessageShouldBeStored
+		{
+			get
+			{
+				return on_chat_message_should_be_stored_public;
+			}
+			set
+			{
+				on_chat_message_should_be_stored_public = value;
+#if WINDOWS_UWP
+				on_chat_message_should_be_stored_private = on_chat_message_should_be_stored;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_chat_message_should_be_stored_private);
+				linphone_chat_room_cbs_set_chat_message_should_be_stored(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_chat_message_should_be_stored(nativePtr, on_chat_message_should_be_stored);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_chat_room_cbs_set_participant_device_fetch_requested(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_chat_room_cbs_set_participant_device_fetch_requested(IntPtr thiz, OnParticipantDeviceFetchRequestedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnParticipantDeviceFetchRequestedDelegatePrivate(IntPtr cr, IntPtr participantAddr);
+
+		public delegate void OnParticipantDeviceFetchRequestedDelegate(Linphone.ChatRoom cr, Linphone.Address participantAddr);
+		private OnParticipantDeviceFetchRequestedDelegatePrivate on_participant_device_fetch_requested_private;
+		private OnParticipantDeviceFetchRequestedDelegate on_participant_device_fetch_requested_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnParticipantDeviceFetchRequestedDelegatePrivate))]
+#endif
+		private static void on_participant_device_fetch_requested(IntPtr cr, IntPtr participantAddr)
+		{
+			ChatRoom thiz = fromNativePtr<ChatRoom>(cr);
+			
+			ChatRoomListener listener = thiz.CurrentCallbacks;
+			listener.on_participant_device_fetch_requested_public?.Invoke(thiz, fromNativePtr<Linphone.Address>(participantAddr));
+		}
+
+		public OnParticipantDeviceFetchRequestedDelegate OnParticipantDeviceFetchRequested
+		{
+			get
+			{
+				return on_participant_device_fetch_requested_public;
+			}
+			set
+			{
+				on_participant_device_fetch_requested_public = value;
+#if WINDOWS_UWP
+				on_participant_device_fetch_requested_private = on_participant_device_fetch_requested;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_participant_device_fetch_requested_private);
+				linphone_chat_room_cbs_set_participant_device_fetch_requested(nativePtr, cb);
+#else
+				linphone_chat_room_cbs_set_participant_device_fetch_requested(nativePtr, on_participant_device_fetch_requested);
 #endif
 			}
 		}
@@ -5244,6 +5470,92 @@ namespace Linphone
 	{
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
+		static extern void linphone_friend_list_cbs_set_contact_updated(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_friend_list_cbs_set_contact_updated(IntPtr thiz, OnContactUpdatedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnContactUpdatedDelegatePrivate(IntPtr list, IntPtr newFriend, IntPtr oldFriend);
+
+		public delegate void OnContactUpdatedDelegate(Linphone.FriendList list, Linphone.Friend newFriend, Linphone.Friend oldFriend);
+		private OnContactUpdatedDelegatePrivate on_contact_updated_private;
+		private OnContactUpdatedDelegate on_contact_updated_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnContactUpdatedDelegatePrivate))]
+#endif
+		private static void on_contact_updated(IntPtr list, IntPtr newFriend, IntPtr oldFriend)
+		{
+			FriendList thiz = fromNativePtr<FriendList>(list);
+			FriendListListener listener = thiz.Listener;
+			
+			listener.on_contact_updated_public?.Invoke(thiz, fromNativePtr<Linphone.Friend>(newFriend), fromNativePtr<Linphone.Friend>(oldFriend));
+		}
+
+		public OnContactUpdatedDelegate OnContactUpdated
+		{
+			get
+			{
+				return on_contact_updated_public;
+			}
+			set
+			{
+				on_contact_updated_public = value;
+#if WINDOWS_UWP
+				on_contact_updated_private = on_contact_updated;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_contact_updated_private);
+				linphone_friend_list_cbs_set_contact_updated(nativePtr, cb);
+#else
+				linphone_friend_list_cbs_set_contact_updated(nativePtr, on_contact_updated);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
+		static extern void linphone_friend_list_cbs_set_presence_received(IntPtr thiz, IntPtr cb);
+#else
+		static extern void linphone_friend_list_cbs_set_presence_received(IntPtr thiz, OnPresenceReceivedDelegatePrivate cb);
+#endif
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void OnPresenceReceivedDelegatePrivate(IntPtr list, IntPtr friends);
+
+		public delegate void OnPresenceReceivedDelegate(Linphone.FriendList list, IEnumerable<Linphone.Friend> friends);
+		private OnPresenceReceivedDelegatePrivate on_presence_received_private;
+		private OnPresenceReceivedDelegate on_presence_received_public;
+
+#if __IOS__
+		[MonoPInvokeCallback(typeof(OnPresenceReceivedDelegatePrivate))]
+#endif
+		private static void on_presence_received(IntPtr list, IntPtr friends)
+		{
+			FriendList thiz = fromNativePtr<FriendList>(list);
+			FriendListListener listener = thiz.Listener;
+			
+			listener.on_presence_received_public?.Invoke(thiz, MarshalBctbxList<Linphone.Friend>(friends));
+		}
+
+		public OnPresenceReceivedDelegate OnPresenceReceived
+		{
+			get
+			{
+				return on_presence_received_public;
+			}
+			set
+			{
+				on_presence_received_public = value;
+#if WINDOWS_UWP
+				on_presence_received_private = on_presence_received;
+				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_presence_received_private);
+				linphone_friend_list_cbs_set_presence_received(nativePtr, cb);
+#else
+				linphone_friend_list_cbs_set_presence_received(nativePtr, on_presence_received);
+#endif
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+#if WINDOWS_UWP
 		static extern void linphone_friend_list_cbs_set_sync_status_changed(IntPtr thiz, IntPtr cb);
 #else
 		static extern void linphone_friend_list_cbs_set_sync_status_changed(IntPtr thiz, OnSyncStatusChangedDelegatePrivate cb);
@@ -5330,49 +5642,6 @@ namespace Linphone
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 #if WINDOWS_UWP
-		static extern void linphone_friend_list_cbs_set_contact_updated(IntPtr thiz, IntPtr cb);
-#else
-		static extern void linphone_friend_list_cbs_set_contact_updated(IntPtr thiz, OnContactUpdatedDelegatePrivate cb);
-#endif
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		private delegate void OnContactUpdatedDelegatePrivate(IntPtr list, IntPtr newFriend, IntPtr oldFriend);
-
-		public delegate void OnContactUpdatedDelegate(Linphone.FriendList list, Linphone.Friend newFriend, Linphone.Friend oldFriend);
-		private OnContactUpdatedDelegatePrivate on_contact_updated_private;
-		private OnContactUpdatedDelegate on_contact_updated_public;
-
-#if __IOS__
-		[MonoPInvokeCallback(typeof(OnContactUpdatedDelegatePrivate))]
-#endif
-		private static void on_contact_updated(IntPtr list, IntPtr newFriend, IntPtr oldFriend)
-		{
-			FriendList thiz = fromNativePtr<FriendList>(list);
-			FriendListListener listener = thiz.Listener;
-			
-			listener.on_contact_updated_public?.Invoke(thiz, fromNativePtr<Linphone.Friend>(newFriend), fromNativePtr<Linphone.Friend>(oldFriend));
-		}
-
-		public OnContactUpdatedDelegate OnContactUpdated
-		{
-			get
-			{
-				return on_contact_updated_public;
-			}
-			set
-			{
-				on_contact_updated_public = value;
-#if WINDOWS_UWP
-				on_contact_updated_private = on_contact_updated;
-				IntPtr cb = Marshal.GetFunctionPointerForDelegate(on_contact_updated_private);
-				linphone_friend_list_cbs_set_contact_updated(nativePtr, cb);
-#else
-				linphone_friend_list_cbs_set_contact_updated(nativePtr, on_contact_updated);
-#endif
-			}
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-#if WINDOWS_UWP
 		static extern void linphone_friend_list_cbs_set_contact_deleted(IntPtr thiz, IntPtr cb);
 #else
 		static extern void linphone_friend_list_cbs_set_contact_deleted(IntPtr thiz, OnContactDeletedDelegatePrivate cb);
@@ -5442,7 +5711,6 @@ namespace Linphone
 			LoggingServiceListener listener = thiz.Listener;
 			
 			listener.on_log_message_written_public?.Invoke(thiz, domain, (Linphone.LogLevel)lev, message);
-            Console.WriteLine($"[{domain}] - {((LogLevel)lev).ToString().ToUpper()}: {message}");
 		}
 
 		public OnLogMessageWrittenDelegate OnLogMessageWritten
@@ -5460,6 +5728,7 @@ namespace Linphone
 				linphone_logging_service_cbs_set_log_message_written(nativePtr, cb);
 #else
 				linphone_logging_service_cbs_set_log_message_written(nativePtr, on_log_message_written);
+               
 #endif
 			}
 		}
@@ -5609,6 +5878,20 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.AccountCreatorAlgoStatus linphone_account_creator_set_algorithm(IntPtr thiz, string algorithm);
+
+		/// <summary>
+		/// Set the supported algorithm. 
+		/// </summary>
+		public string Algorithm
+		{
+			set
+			{
+				linphone_account_creator_set_algorithm(nativePtr, value);
+				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_account_creator_get_display_name(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern Linphone.AccountCreatorUsernameStatus linphone_account_creator_set_display_name(IntPtr thiz, string displayName);
@@ -5746,6 +6029,20 @@ namespace Linphone
 			{
 				IntPtr stringPtr = linphone_account_creator_get_phone_number(nativePtr);
 				return Marshal.PtrToStringAuto(stringPtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_account_creator_set_proxy_config(IntPtr thiz, IntPtr cfg);
+
+		/// <summary>
+		/// Assign a proxy config pointer to the LinphoneAccountCreator. 
+		/// </summary>
+		public Linphone.ProxyConfig ProxyConfig
+		{
+			set
+			{
+				linphone_account_creator_set_proxy_config(nativePtr, value.nativePtr);
+				
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -6992,6 +7289,26 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_call_get_microphone_muted(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_call_set_microphone_muted(IntPtr thiz, char muted);
+
+		/// <summary>
+		/// Get microphone muted state. 
+		/// </summary>
+		public bool MicrophoneMuted
+		{
+			get
+			{
+				return linphone_call_get_microphone_muted(nativePtr) != 0;
+			}
+			set
+			{
+				linphone_call_set_microphone_muted(nativePtr, value ? (char)1 : (char)0);
+				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern float linphone_call_get_microphone_volume_gain(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_call_set_microphone_volume_gain(IntPtr thiz, float volume);
@@ -7202,6 +7519,26 @@ namespace Linphone
 			{
 				IntPtr ptr = linphone_call_get_replaced_call(nativePtr);
 				return fromNativePtr<Linphone.Call>(ptr, true);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_call_get_speaker_muted(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_call_set_speaker_muted(IntPtr thiz, char muted);
+
+		/// <summary>
+		/// Get speaker muted state. 
+		/// </summary>
+		public bool SpeakerMuted
+		{
+			get
+			{
+				return linphone_call_get_speaker_muted(nativePtr) != 0;
+			}
+			set
+			{
+				linphone_call_set_speaker_muted(nativePtr, value ? (char)1 : (char)0);
+				
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -8751,6 +9088,20 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_chat_message_get_core(IntPtr thiz);
+
+		/// <summary>
+		/// Returns back pointer to <see cref="Linphone.Core" /> object. 
+		/// </summary>
+		public Linphone.Core Core
+		{
+			get
+			{
+				IntPtr ptr = linphone_chat_message_get_core(nativePtr);
+				return fromNativePtr<Linphone.Core>(ptr, true);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_chat_message_get_error_info(IntPtr thiz);
 
 		/// <summary>
@@ -9462,6 +9813,19 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.ChatRoomSecurityLevel linphone_chat_room_get_security_level(IntPtr thiz);
+
+		/// <summary>
+		/// Get the security level of a chat room. 
+		/// </summary>
+		public Linphone.ChatRoomSecurityLevel SecurityLevel
+		{
+			get
+			{
+				return linphone_chat_room_get_security_level(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern Linphone.ChatRoomState linphone_chat_room_get_state(IntPtr thiz);
 
 		/// <summary>
@@ -9528,17 +9892,6 @@ namespace Linphone
 		public void AddParticipant(Linphone.Address addr)
 		{
 			linphone_chat_room_add_participant(nativePtr, addr != null ? addr.nativePtr : IntPtr.Zero);
-			
-		}
-		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-		static extern void linphone_chat_room_add_participant_device(IntPtr thiz, IntPtr participantAddress, IntPtr deviceAddress);
-
-		/// <summary>
-		/// Add a participant device. 
-		/// </summary>
-		public void AddParticipantDevice(Linphone.Address participantAddress, Linphone.Address deviceAddress)
-		{
-			linphone_chat_room_add_participant_device(nativePtr, participantAddress != null ? participantAddress.nativePtr : IntPtr.Zero, deviceAddress != null ? deviceAddress.nativePtr : IntPtr.Zero);
 			
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -10778,6 +11131,19 @@ namespace Linphone
 	public class Core : LinphoneObject
 	{
 
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_get_ms_factory(IntPtr thiz);
+
+		public MediastreamerFactory MsFactory {
+			get
+			{
+				IntPtr ptr = linphone_core_get_ms_factory(nativePtr);
+		                MediastreamerFactory factory = new MediastreamerFactory();
+				factory.nativePtr = ptr;
+		                return factory;
+			}
+		}
+
 		/// Get the native window handle of the video window.
 		public string NativeVideoWindowIdString
 		{
@@ -11785,81 +12151,8 @@ namespace Linphone
 				
 			}
 		}
-
-
-        #region Beamforming
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern char linphone_core_beamforming_enabled(IntPtr thiz);
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern void linphone_core_enable_beamforming(IntPtr thiz, char val);
-
-        /// <summary>
-		/// Returns true if beamforming is enabled. 
-		/// </summary>
-		public bool BeamformingEnabled
-        {
-            get
-            {
-                return linphone_core_beamforming_enabled(nativePtr) != 0;
-            }
-            set
-            {
-                linphone_core_enable_beamforming(nativePtr, value ? (char)1 : (char)0);
-
-            }
-        }
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern float linphone_core_get_beamforming_angle_deg(IntPtr thiz);
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern void linphone_core_set_beamforming_angle_deg(IntPtr thiz, float val);
-        /// <summary>
-        /// beamforming_angle_deg=0 for mts 4 and mts 7
-        /// </summary>
-        public float BeamformingAngleDeg
-        {
-            get
-            {
-                return linphone_core_get_beamforming_angle_deg(nativePtr);
-            }
-            set
-            {
-                linphone_core_set_beamforming_angle_deg(nativePtr, value);
-
-            }
-        }
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern float linphone_core_get_beamforming_mic_dist_mm(IntPtr thiz);
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern void linphone_core_set_beamforming_mic_dist_mm(IntPtr thiz, float val);
-
-        /// <summary>
-        /// beamforming_mic_dist_mm=74 for mts 4
-        /// beamforming_mic_dist_mm =184 for mts 7
-        /// </summary>
-        public float BeamformingMicDist        {
-            get
-            {
-                return linphone_core_get_beamforming_mic_dist_mm(nativePtr);
-            }
-            set
-            {
-                linphone_core_set_beamforming_mic_dist_mm(nativePtr, value);
-
-            }
-        }
-
-
-        #endregion
-
-
-
-        [DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
-        static extern char linphone_core_echo_cancellation_enabled(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_core_echo_cancellation_enabled(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_core_enable_echo_cancellation(IntPtr thiz, char val);
 
@@ -12242,6 +12535,26 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_core_lime_x3dh_enabled(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_core_enable_lime_x3dh(IntPtr thiz, char enable);
+
+		/// <summary>
+		/// Tells wether LIME X3DH is enabled or not. 
+		/// </summary>
+		public bool LimeX3DhEnabled
+		{
+			get
+			{
+				return linphone_core_lime_x3dh_enabled(nativePtr) != 0;
+			}
+			set
+			{
+				linphone_core_enable_lime_x3dh(nativePtr, value ? (char)1 : (char)0);
+				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_get_linphone_specs(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_core_set_linphone_specs(IntPtr thiz, string specs);
@@ -12303,6 +12616,48 @@ namespace Linphone
 			{
 				linphone_core_set_max_calls(nativePtr, value);
 				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_core_get_max_size_for_auto_download_incoming_files(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_core_set_max_size_for_auto_download_incoming_files(IntPtr thiz, int size);
+
+		/// <summary>
+		/// Gets the size under which incoming files in chat messages will be downloaded
+		/// automatically. 
+		/// </summary>
+		public int MaxSizeForAutoDownloadIncomingFiles
+		{
+			get
+			{
+				return linphone_core_get_max_size_for_auto_download_incoming_files(nativePtr);
+			}
+			set
+			{
+				linphone_core_set_max_size_for_auto_download_incoming_files(nativePtr, value);
+				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_get_media_device(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_core_set_media_device(IntPtr thiz, string devid);
+
+		/// <summary>
+		/// Gets the name of the currently assigned sound device for media. 
+		/// </summary>
+		public string MediaDevice
+		{
+			get
+			{
+				IntPtr stringPtr = linphone_core_get_media_device(nativePtr);
+				return Marshal.PtrToStringAuto(stringPtr);
+			}
+			set
+			{
+				int exception_result = linphone_core_set_media_device(nativePtr, value);
+				if (exception_result != 0) throw new LinphoneException("MediaDevice setter returned value " + exception_result);
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -12747,7 +13102,7 @@ namespace Linphone
 
 		/// <summary>
 		/// Same as <see cref="Linphone.Core.GetPrimaryContact()" /> but the result is a
-		/// <see cref="Linphone.Address" /> object instead of const char*. 
+		/// <see cref="Linphone.Address" /> object instead of const char *. 
 		/// </summary>
 		public Linphone.Address PrimaryContactParsed
 		{
@@ -13359,6 +13714,32 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_core_get_unread_chat_message_count(IntPtr thiz);
+
+		/// <summary>
+		/// Return the global unread chat message count. 
+		/// </summary>
+		public int UnreadChatMessageCount
+		{
+			get
+			{
+				return linphone_core_get_unread_chat_message_count(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_core_get_unread_chat_message_count_from_active_locals(IntPtr thiz);
+
+		/// <summary>
+		/// Return the unread chat message count for all active local address. 
+		/// </summary>
+		public int UnreadChatMessageCountFromActiveLocals
+		{
+			get
+			{
+				return linphone_core_get_unread_chat_message_count_from_active_locals(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_core_get_upload_bandwidth(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_core_set_upload_bandwidth(IntPtr thiz, int bw);
@@ -13881,6 +14262,26 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_core_wifi_only_enabled(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern void linphone_core_enable_wifi_only(IntPtr thiz, char val);
+
+		/// <summary>
+		/// Tells whether Wifi only mode is enabled or not. 
+		/// </summary>
+		public bool WifiOnlyEnabled
+		{
+			get
+			{
+				return linphone_core_wifi_only_enabled(nativePtr) != 0;
+			}
+			set
+			{
+				linphone_core_enable_wifi_only(nativePtr, value ? (char)1 : (char)0);
+				
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_get_zrtp_cache_db(IntPtr thiz);
 
 		/// <summary>
@@ -14164,6 +14565,17 @@ namespace Linphone
 			return fromNativePtr<Linphone.ChatRoom>(ptr, false);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_create_client_group_chat_room_2(IntPtr thiz, string subject, char fallback, char encrypted);
+
+		/// <summary>
+		/// Create a client-side group chat room. 
+		/// </summary>
+		public Linphone.ChatRoom CreateClientGroupChatRoom(string subject, bool fallback, bool encrypted)
+		{
+			IntPtr ptr = linphone_core_create_client_group_chat_room_2(nativePtr, subject, fallback ? (char)1 : (char)0, encrypted ? (char)1 : (char)0);
+			return fromNativePtr<Linphone.ChatRoom>(ptr, false);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_create_conference_params(IntPtr thiz);
 
 		/// <summary>
@@ -14404,6 +14816,18 @@ namespace Linphone
 			return fromNativePtr<Linphone.PresenceService>(ptr, false);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_create_primary_contact_parsed(IntPtr thiz);
+
+		/// <summary>
+		/// Same as <see cref="Linphone.Core.GetPrimaryContact()" /> but the result is a
+		/// <see cref="Linphone.Address" /> object instead of const char *. 
+		/// </summary>
+		public Linphone.Address CreatePrimaryContactParsed()
+		{
+			IntPtr ptr = linphone_core_create_primary_contact_parsed(nativePtr);
+			return fromNativePtr<Linphone.Address>(ptr, false);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_create_proxy_config(IntPtr thiz);
 
 		/// <summary>
@@ -14423,6 +14847,18 @@ namespace Linphone
 		public Linphone.Event CreatePublish(Linphone.Address resource, string ev, int expires)
 		{
 			IntPtr ptr = linphone_core_create_publish(nativePtr, resource != null ? resource.nativePtr : IntPtr.Zero, ev, expires);
+			return fromNativePtr<Linphone.Event>(ptr, false);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_create_subscribe_2(IntPtr thiz, IntPtr resource, IntPtr proxy, string ev, int expires);
+
+		/// <summary>
+		/// Create an outgoing subscription, specifying the destination resource, the event
+		/// name, and an optional content body. 
+		/// </summary>
+		public Linphone.Event CreateSubscribe(Linphone.Address resource, Linphone.ProxyConfig proxy, string ev, int expires)
+		{
+			IntPtr ptr = linphone_core_create_subscribe_2(nativePtr, resource != null ? resource.nativePtr : IntPtr.Zero, proxy != null ? proxy.nativePtr : IntPtr.Zero, ev, expires);
 			return fromNativePtr<Linphone.Event>(ptr, false);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
@@ -14627,6 +15063,17 @@ namespace Linphone
 			return fromNativePtr<Linphone.Friend>(ptr, true);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_find_one_to_one_chat_room_2(IntPtr thiz, IntPtr localAddr, IntPtr participantAddr, char encrypted);
+
+		/// <summary>
+		/// Find a one to one chat room. 
+		/// </summary>
+		public Linphone.ChatRoom FindOneToOneChatRoom(Linphone.Address localAddr, Linphone.Address participantAddr, bool encrypted)
+		{
+			IntPtr ptr = linphone_core_find_one_to_one_chat_room_2(nativePtr, localAddr != null ? localAddr.nativePtr : IntPtr.Zero, participantAddr != null ? participantAddr.nativePtr : IntPtr.Zero, encrypted ? (char)1 : (char)0);
+			return fromNativePtr<Linphone.ChatRoom>(ptr, true);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_find_one_to_one_chat_room(IntPtr thiz, IntPtr localAddr, IntPtr participantAddr);
 
 		/// <summary>
@@ -14660,6 +15107,16 @@ namespace Linphone
 			return fromNativePtr<Linphone.Call>(ptr, true);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_get_call_history_2(IntPtr thiz, IntPtr peerAddr, IntPtr localAddr);
+
+		/// <summary>
+		/// Get the list of call logs (past calls). 
+		/// </summary>
+		public IEnumerable<Linphone.CallLog> GetCallHistory(Linphone.Address peerAddr, Linphone.Address localAddr)
+		{
+			return MarshalBctbxList<Linphone.CallLog>(linphone_core_get_call_history_2(nativePtr, peerAddr != null ? peerAddr.nativePtr : IntPtr.Zero, localAddr != null ? localAddr.nativePtr : IntPtr.Zero));
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_get_call_history_for_address(IntPtr thiz, IntPtr addr);
 
 		/// <summary>
@@ -14669,6 +15126,17 @@ namespace Linphone
 		public IEnumerable<Linphone.CallLog> GetCallHistoryForAddress(Linphone.Address addr)
 		{
 			return MarshalBctbxList<Linphone.CallLog>(linphone_core_get_call_history_for_address(nativePtr, addr != null ? addr.nativePtr : IntPtr.Zero));
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_get_chat_room_2(IntPtr thiz, IntPtr peerAddr, IntPtr localAddr);
+
+		/// <summary>
+		/// Get a basic chat room. 
+		/// </summary>
+		public Linphone.ChatRoom GetChatRoom(Linphone.Address peerAddr, Linphone.Address localAddr)
+		{
+			IntPtr ptr = linphone_core_get_chat_room_2(nativePtr, peerAddr != null ? peerAddr.nativePtr : IntPtr.Zero, localAddr != null ? localAddr.nativePtr : IntPtr.Zero);
+			return fromNativePtr<Linphone.ChatRoom>(ptr, true);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_get_chat_room(IntPtr thiz, IntPtr addr);
@@ -14705,6 +15173,18 @@ namespace Linphone
 			return fromNativePtr<Linphone.Friend>(ptr, true);
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_core_get_friend_list_by_name(IntPtr thiz, string name);
+
+		/// <summary>
+		/// Retrieves the list of <see cref="Linphone.Friend" /> from the core that has the
+		/// given display name. 
+		/// </summary>
+		public Linphone.FriendList GetFriendListByName(string name)
+		{
+			IntPtr ptr = linphone_core_get_friend_list_by_name(nativePtr, name);
+			return fromNativePtr<Linphone.FriendList>(ptr, true);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_core_get_payload_type(IntPtr thiz, string type, int rate, int channels);
 
 		/// <summary>
@@ -14714,6 +15194,28 @@ namespace Linphone
 		{
 			IntPtr ptr = linphone_core_get_payload_type(nativePtr, type, rate, channels);
 			return fromNativePtr<Linphone.PayloadType>(ptr, true);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_core_get_unread_chat_message_count_from_local(IntPtr thiz, IntPtr address);
+
+		/// <summary>
+		/// Return the unread chat message count for a given local address. 
+		/// </summary>
+		public int GetUnreadChatMessageCountFromLocal(Linphone.Address address)
+		{
+			return linphone_core_get_unread_chat_message_count_from_local(nativePtr, address != null ? address.nativePtr : IntPtr.Zero);
+			
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.ZrtpPeerStatus linphone_core_get_zrtp_status(IntPtr thiz, string addr);
+
+		/// <summary>
+		/// Get the zrtp sas validation status for a peer uri. 
+		/// </summary>
+		public Linphone.ZrtpPeerStatus GetZrtpStatus(string addr)
+		{
+			return linphone_core_get_zrtp_status(nativePtr, addr);
+			
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern char linphone_core_has_builtin_echo_canceller(IntPtr thiz);
@@ -14816,9 +15318,8 @@ namespace Linphone
 		/// </summary>
 		public void Iterate()
 		{
-        
-                linphone_core_iterate(nativePtr);
-           	
+			linphone_core_iterate(nativePtr);
+			
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_core_leave_conference(IntPtr thiz);
@@ -14851,6 +15352,16 @@ namespace Linphone
 		{
 			return linphone_core_lime_enabled(nativePtr);
 			
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_core_lime_x3dh_available(IntPtr thiz);
+
+		/// <summary>
+		/// Tells if LIME X3DH is available. 
+		/// </summary>
+		public bool LimeX3DhAvailable()
+		{
+			return linphone_core_lime_x3dh_available(nativePtr) == (char)0 ? false : true;
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern char linphone_core_media_encryption_supported(IntPtr thiz, int menc);
@@ -16213,6 +16724,33 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_event_log_get_security_event_faulty_device_address(IntPtr thiz);
+
+		/// <summary>
+		/// Returns the faulty device address of a conference security event. 
+		/// </summary>
+		public Linphone.Address SecurityEventFaultyDeviceAddress
+		{
+			get
+			{
+				IntPtr ptr = linphone_event_log_get_security_event_faulty_device_address(nativePtr);
+				return fromNativePtr<Linphone.Address>(ptr, true);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.SecurityEventType linphone_event_log_get_security_event_type(IntPtr thiz);
+
+		/// <summary>
+		/// Returns the type of security event. 
+		/// </summary>
+		public Linphone.SecurityEventType SecurityEventType
+		{
+			get
+			{
+				return linphone_event_log_get_security_event_type(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_event_log_get_subject(IntPtr thiz);
 
 		/// <summary>
@@ -16782,6 +17320,19 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_friend_get_capabilities(IntPtr thiz);
+
+		/// <summary>
+		/// Returns the capabilities associated to this friend. 
+		/// </summary>
+		public int Capabilities
+		{
+			get
+			{
+				return linphone_friend_get_capabilities(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern Linphone.ConsolidatedPresence linphone_friend_get_consolidated_presence(IntPtr thiz);
 
 		/// <summary>
@@ -17037,6 +17588,16 @@ namespace Linphone
 		{
 			IntPtr ptr = linphone_friend_get_presence_model_for_uri_or_tel(nativePtr, uriOrTel);
 			return fromNativePtr<Linphone.PresenceModel>(ptr, true);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_friend_has_capability(IntPtr thiz, int capability);
+
+		/// <summary>
+		/// Returns whether or not a friend has a capbility. 
+		/// </summary>
+		public bool HasCapability(Linphone.FriendCapability capability)
+		{
+			return linphone_friend_has_capability(nativePtr, (int)capability) == (char)0 ? false : true;
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern char linphone_friend_in_list(IntPtr thiz);
@@ -18087,6 +18648,19 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_participant_get_devices(IntPtr thiz);
+
+		/// <summary>
+		/// Gets the list of devices from a chat room's participant. 
+		/// </summary>
+		public IEnumerable<Linphone.ParticipantDevice> Devices
+		{
+			get
+			{
+				return MarshalBctbxList<Linphone.ParticipantDevice>(linphone_participant_get_devices(nativePtr));
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern char linphone_participant_is_admin(IntPtr thiz);
 
 		/// <summary>
@@ -18097,6 +18671,51 @@ namespace Linphone
 			get
 			{
 				return linphone_participant_is_admin(nativePtr) != 0;
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.ChatRoomSecurityLevel linphone_participant_get_security_level(IntPtr thiz);
+
+		/// <summary>
+		/// Get the security level of a chat room. 
+		/// </summary>
+		public Linphone.ChatRoomSecurityLevel SecurityLevel
+		{
+			get
+			{
+				return linphone_participant_get_security_level(nativePtr);
+			}
+		}
+	}
+
+	[StructLayout(LayoutKind.Sequential)]
+	public class ParticipantDevice : LinphoneObject
+	{
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_participant_device_get_address(IntPtr thiz);
+
+		/// <summary>
+		/// Get the address of a participant's device. 
+		/// </summary>
+		public Linphone.Address Address
+		{
+			get
+			{
+				IntPtr ptr = linphone_participant_device_get_address(nativePtr);
+				return fromNativePtr<Linphone.Address>(ptr, true);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern Linphone.ChatRoomSecurityLevel linphone_participant_device_get_security_level(IntPtr thiz);
+
+		/// <summary>
+		/// Get the security level of a participant's device. 
+		/// </summary>
+		public Linphone.ChatRoomSecurityLevel SecurityLevel
+		{
+			get
+			{
+				return linphone_participant_device_get_security_level(nativePtr);
 			}
 		}
 	}
@@ -18625,6 +19244,19 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_presence_model_get_capabilities(IntPtr thiz);
+
+		/// <summary>
+		/// Gets the capabilities of a <see cref="Linphone.PresenceModel" /> object. 
+		/// </summary>
+		public int Capabilities
+		{
+			get
+			{
+				return linphone_presence_model_get_capabilities(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern Linphone.ConsolidatedPresence linphone_presence_model_get_consolidated_presence(IntPtr thiz);
 
 		/// <summary>
@@ -18875,6 +19507,17 @@ namespace Linphone
 		{
 			IntPtr ptr = linphone_presence_model_get_nth_service(nativePtr, idx);
 			return fromNativePtr<Linphone.PresenceService>(ptr, true);
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_presence_model_has_capability(IntPtr thiz, int capability);
+
+		/// <summary>
+		/// Returns whether or not the <see cref="Linphone.PresenceModel" /> object has a
+		/// given capability. 
+		/// </summary>
+		public bool HasCapability(Linphone.FriendCapability capability)
+		{
+			return linphone_presence_model_has_capability(nativePtr, (int)capability) == (char)0 ? false : true;
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_presence_model_set_activity(IntPtr thiz, int activity, string description);
@@ -19188,6 +19831,26 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern IntPtr linphone_presence_service_get_service_descriptions(IntPtr thiz);
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_presence_service_set_service_descriptions(IntPtr thiz, IntPtr descriptions);
+
+		/// <summary>
+		/// Gets the service descriptions of a presence service. 
+		/// </summary>
+		public IEnumerable<string> ServiceDescriptions
+		{
+			get
+			{
+				return MarshalStringArray(linphone_presence_service_get_service_descriptions(nativePtr));
+			}
+			set
+			{
+				int exception_result = linphone_presence_service_set_service_descriptions(nativePtr, StringArrayToBctbxList(value));
+				if (exception_result != 0) throw new LinphoneException("ServiceDescriptions setter returned value " + exception_result);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_presence_service_add_note(IntPtr thiz, IntPtr note);
 
 		/// <summary>
@@ -19496,6 +20159,16 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_proxy_config_lime_x3dh_enabled(IntPtr thiz);
+
+		public bool LimeX3DhEnabled
+		{
+			get
+			{
+				return linphone_proxy_config_lime_x3dh_enabled(nativePtr) != 0;
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_proxy_config_get_nat_policy(IntPtr thiz);
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern void linphone_proxy_config_set_nat_policy(IntPtr thiz, IntPtr policy);
@@ -19794,6 +20467,19 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_proxy_config_get_unread_chat_message_count(IntPtr thiz);
+
+		/// <summary>
+		/// Return the unread chat message count for a given proxy config. 
+		/// </summary>
+		public int UnreadChatMessageCount
+		{
+			get
+			{
+				return linphone_proxy_config_get_unread_chat_message_count(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern int linphone_proxy_config_done(IntPtr thiz);
 
 		/// <summary>
@@ -19971,6 +20657,16 @@ namespace Linphone
 			}
 		}
 		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern int linphone_search_result_get_capabilities(IntPtr thiz);
+
+		public int Capabilities
+		{
+			get
+			{
+				return linphone_search_result_get_capabilities(nativePtr);
+			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
 		static extern IntPtr linphone_search_result_get_friend(IntPtr thiz);
 
 		public Linphone.Friend Friend
@@ -20001,6 +20697,13 @@ namespace Linphone
 			{
 				return linphone_search_result_get_weight(nativePtr);
 			}
+		}
+		[DllImport(LinphoneWrapper.LIB_NAME, CallingConvention = CallingConvention.Cdecl)]
+		static extern char linphone_search_result_has_capability(IntPtr thiz, int capability);
+
+		public bool HasCapability(Linphone.FriendCapability capability)
+		{
+			return linphone_search_result_has_capability(nativePtr, (int)capability) == (char)0 ? false : true;
 		}
 	}
 	/// <summary>
