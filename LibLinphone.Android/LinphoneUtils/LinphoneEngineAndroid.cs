@@ -76,13 +76,15 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
 
+            linphoneCore.VerifyServerCertificates(false);
+
             linphoneCore.Transports.TcpPort = -1;
             linphoneCore.Transports.TlsPort = 0;
             linphoneCore.Transports.UdpPort = 0;
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
-            Log($"used transports is {linphoneCore.TransportsUsed}");
+  
             
 
             LogCodecs();
