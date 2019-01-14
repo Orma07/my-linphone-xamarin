@@ -38,7 +38,7 @@ namespace LibLinphone.Android.Tests
                 image.DrawingCacheEnabled = true;
                 var bitmap = Bitmap.CreateBitmap(image.DrawingCache);
                 image.DrawingCacheEnabled = false;
-                var file = File.Create(Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/image_call_{id}");
+                var file = File.Create(Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/image_call_{id}.jpeg");
                 int quality = 100;
                 bitmap.Compress(Bitmap.CompressFormat.Jpeg, quality, file);
                 file.Flush();
