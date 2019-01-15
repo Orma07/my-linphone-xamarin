@@ -20,7 +20,8 @@ namespace LibLinphone.Android.Tests
 
         public void SaveLog(int id)
         {
-            var filePath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/log_call_{id}";
+            Log.Debug("TEST_REPORT", $"Call numer: {id}");
+            var filePath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/debug_call_log.txt";
             Runtime.GetRuntime().Exec(new string[]
             {
                 "logcat",
@@ -38,7 +39,7 @@ namespace LibLinphone.Android.Tests
                 image.DrawingCacheEnabled = true;
                 var bitmap = Bitmap.CreateBitmap(image.DrawingCache);
                 image.DrawingCacheEnabled = false;
-                var file = File.Create(Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/image_call_{id}.jpeg");
+                var file = File.Create(Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/image_call.jpeg");
                 int quality = 100;
                 bitmap.Compress(Bitmap.CompressFormat.Jpeg, quality, file);
                 file.Flush();

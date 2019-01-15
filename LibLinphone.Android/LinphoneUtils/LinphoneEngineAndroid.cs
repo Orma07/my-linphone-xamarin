@@ -78,9 +78,9 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.VerifyServerCertificates(false);
 
-            linphoneCore.Transports.TcpPort = -1;
-            linphoneCore.Transports.TlsPort = 0;
-            linphoneCore.Transports.UdpPort = 0;
+            linphoneCore.Transports.TcpPort =  0;
+            linphoneCore.Transports.TlsPort = -1;
+            linphoneCore.Transports.UdpPort =  0;
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
