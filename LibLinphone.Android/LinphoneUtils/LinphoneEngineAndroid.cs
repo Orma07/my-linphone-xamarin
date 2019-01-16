@@ -59,7 +59,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
             UploadLogCommand();
 
-//            LoggingService.Instance.LogLevel = LogLevel.Debug;
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
 //            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
@@ -70,8 +70,10 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
 
-            linphoneCore.Transports.TcpPort = -1;
-            linphoneCore.Transports.TlsPort = 0;
+            linphoneCore.VerifyServerCertificates(false);
+
+            linphoneCore.Transports.TcpPort = 0;
+            linphoneCore.Transports.TlsPort = -1;
             linphoneCore.Transports.UdpPort = 0;
 
 
