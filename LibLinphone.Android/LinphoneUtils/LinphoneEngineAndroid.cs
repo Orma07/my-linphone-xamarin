@@ -60,7 +60,8 @@ namespace LibLinphone.Android.LinphoneUtils
             UploadLogCommand();
 
             LoggingService.Instance.LogLevel = LogLevel.Debug;
-//            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+            LinphoneWrapper.setNativeLogHandler();
+           // LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
             CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
@@ -72,13 +73,13 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.VerifyServerCertificates(false);
 
-            linphoneCore.Transports.TcpPort = 0;
+            /*linphoneCore.Transports.TcpPort =  0;
             linphoneCore.Transports.TlsPort = -1;
-            linphoneCore.Transports.UdpPort = 0;
+            linphoneCore.Transports.UdpPort =  0;*/
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
-            Log($"used transports is {linphoneCore.TransportsUsed}");
+            //Log($"used transports is {linphoneCore.TransportsUsed.");
             
 
             LogCodecs();
@@ -533,7 +534,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
         {
-            Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}");
+            Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}, route - {config.Route}, message - {message}");
             RegisterState = state;
             lock (LinphoneListeners)
             {
@@ -578,7 +579,8 @@ namespace LibLinphone.Android.LinphoneUtils
             string myName,
             string serverAddr,
             string routeAddr,
-            bool isMock)
+            bool isMock,
+            bool isCloud)
         {
 
             try
@@ -587,26 +589,41 @@ namespace LibLinphone.Android.LinphoneUtils
                 var prop = Xamarin.Forms.Application.Current.Properties;
 
                 var authInfo = Factory.Instance.CreateAuthInfo(username, null, password, null, null, domain);
-                LinphoneCore.AddAuthInfo(authInfo);
-
-
-
-                var proxyConfig = LinphoneCore.CreateProxyConfig();
+                LinphoneCore.AddAuthInfo(authInfo);         
+                
                 var identity = Factory.Instance.CreateAddress($"sip:{username}@{domain}");
-                if (!isMock)
+                if (isMock)
                 {
                     identity = Factory.Instance.CreateAddress($"sip:sample@domain.tld");
                 }
+             
+             
+                if (isCloud)
+                {
+                    identity.Transport = TransportType.Tls;
+                    linphoneCore.Transports.TcpPort = 0;
+                    linphoneCore.Transports.TlsPort = -1;
+                    linphoneCore.Transports.UdpPort = 0;
+                }
                 else
+                {
+                    identity.Transport = TransportType.Tcp;
+                    linphoneCore.Transports.TcpPort = -1;
+                    linphoneCore.Transports.TlsPort = 0;
+                    linphoneCore.Transports.UdpPort = 0;
+                }
+                Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
+                identity.Username = username;
+                identity.Domain = domain;
+                //identity.Password = password;
+
+                var proxyConfig = LinphoneCore.CreateProxyConfig();
+                proxyConfig.Edit();
+                if (!isMock)
                 {
                     proxyConfig.SetCustomHeader("Mobile-IMEI", imei);
                     proxyConfig.SetCustomHeader("MyName", myName);
                 }
-                identity.Transport = TransportType.Tcp;
-                identity.Username = username;
-                identity.Domain = domain;
-                proxyConfig.Edit();
-
 
                 proxyConfig.IdentityAddress = identity;
                 proxyConfig.ServerAddr = serverAddr;

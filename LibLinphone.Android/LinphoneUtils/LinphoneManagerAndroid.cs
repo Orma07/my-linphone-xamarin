@@ -46,9 +46,9 @@ namespace LibLinphone.Droid.LinphoneUtils
             return LinphoneEngine.IsInCall();
         }
 
-        public void RegisterLinphone(string username, string password, string domain, string imei, string myName, string serverAddr, string routeAddr, bool isMock)
+        public void RegisterLinphone(string username, string password, string domain, string imei, string myName, string serverAddr, string routeAddr, bool isMock, bool isCloud)
         {
-            LinphoneEngine.RegisterLinphone(username, password, domain, imei, myName, serverAddr, routeAddr, isMock);
+            LinphoneEngine.RegisterLinphone(username, password, domain, imei, myName, serverAddr, routeAddr, isMock, isCloud);
         }
 
         public void RemoveLinphoneListenner(ILinphoneListener linphneListenner)

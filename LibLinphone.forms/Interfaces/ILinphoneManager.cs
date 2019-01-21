@@ -23,7 +23,8 @@ namespace LibLinphone.Interfaces
             string myName,
             string serverAddr,
             string routeAddr,
-            bool isMock);
+            bool isMock,
+            bool isCloud);
         void UnRegister();
         void ChangeMicValue();
         void SetMicValue(bool value);
