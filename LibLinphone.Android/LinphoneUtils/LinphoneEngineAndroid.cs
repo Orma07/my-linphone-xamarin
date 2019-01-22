@@ -592,6 +592,8 @@ namespace LibLinphone.Android.LinphoneUtils
                 LinphoneCore.AddAuthInfo(authInfo);         
                 
                 var identity = Factory.Instance.CreateAddress($"sip:{username}@{domain}");
+                var proxyConfig = LinphoneCore.CreateProxyConfig();
+                proxyConfig.Edit();
                 if (isMock)
                 {
                     identity = Factory.Instance.CreateAddress($"sip:sample@domain.tld");
@@ -601,24 +603,27 @@ namespace LibLinphone.Android.LinphoneUtils
                 if (isCloud)
                 {
                     identity.Transport = TransportType.Tls;
-                    linphoneCore.Transports.TcpPort = 0;
-                    linphoneCore.Transports.TlsPort = -1;
-                    linphoneCore.Transports.UdpPort = 0;
+                    var transport = linphoneCore.Transports;
+                    transport.TcpPort = 0;
+                    transport.TlsPort = -1;
+                    transport.UdpPort = 0;
+                    linphoneCore.Transports = transport;
                 }
                 else
                 {
                     identity.Transport = TransportType.Tcp;
-                    linphoneCore.Transports.TcpPort = -1;
-                    linphoneCore.Transports.TlsPort = 0;
-                    linphoneCore.Transports.UdpPort = 0;
+                    var transport = linphoneCore.Transports;
+                    transport.TcpPort = -1;
+                    transport.TlsPort = 0;
+                    transport.UdpPort = 0;
+                    linphoneCore.Transports = transport;
                 }
                 Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                 identity.Username = username;
                 identity.Domain = domain;
                 //identity.Password = password;
 
-                var proxyConfig = LinphoneCore.CreateProxyConfig();
-                proxyConfig.Edit();
+               
                 if (!isMock)
                 {
                     proxyConfig.SetCustomHeader("Mobile-IMEI", imei);
