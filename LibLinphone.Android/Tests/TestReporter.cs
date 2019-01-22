@@ -1,14 +1,16 @@
 ﻿
 
+using System;
 using Android.App;
 using Android.Graphics;
-using Android.OS;
 using Android.Util;
 using Java.Lang;
 using LibLinphone.Android.Tests;
 using LibLinphone.forms.Interfaces;
 using System.IO;
 using System.Threading.Tasks;
+using Environment = Android.OS.Environment;
+using Exception = Java.Lang.Exception;
 
 [assembly: Xamarin.Forms.Dependency(typeof(TestReporter))]
 namespace LibLinphone.Android.Tests
@@ -20,14 +22,22 @@ namespace LibLinphone.Android.Tests
 
         public void SaveLog(int id)
         {
-            Log.Debug("TEST_REPORT", $"Call numer: {id}");
-            var filePath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/debug_call_log.txt";
-            Runtime.GetRuntime().Exec(new string[]
+            try
             {
-                "logcat",
-                "-f",
-                filePath,
-            });
+                Log.Debug("TEST_REPORT", $"Call numer: {id}");
+                var filePath = Environment.GetExternalStoragePublicDirectory(Environment.DirectoryDownloads) + $"/debug_call_log.txt";
+                File.Delete(filePath);
+                Runtime.GetRuntime().Exec(new string[]
+                {
+                    "logcat",
+                    "-f",
+                    filePath,
+                });
+            }
+            catch (Exception e)
+            {
+                Log.Error("TEST_REPORT", "exception while saving log: " + e.StackTrace);
+            }
         }
 
         public async Task TakeScreen(int id)

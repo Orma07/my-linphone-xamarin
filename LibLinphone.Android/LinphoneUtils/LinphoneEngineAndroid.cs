@@ -460,7 +460,7 @@ namespace LibLinphone.Android.LinphoneUtils
                         }
                         catch (Exception ex)
                         {
-                            Log("error with listenner, OnCall");
+                            Log("error with listener, OnCall");
                         }
                     }
                 }
