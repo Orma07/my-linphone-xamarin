@@ -59,8 +59,8 @@ namespace LibLinphone.Android.LinphoneUtils
 
             UploadLogCommand();
 
-            LoggingService.Instance.LogLevel = LogLevel.Debug;
-            LinphoneWrapper.setNativeLogHandler();
+            //LoggingService.Instance.LogLevel = LogLevel.Debug;
+            //LinphoneWrapper.setNativeLogHandler();
            // LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 
             CoreListener.OnGlobalStateChanged = OnGlobal;
