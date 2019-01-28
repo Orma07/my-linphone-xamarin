@@ -52,10 +52,12 @@ namespace LibLinphone.Android.LinphoneUtils
 
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
             linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
+
             // Required to be able to store logs as file
             Core.SetLogCollectionPath(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData));
             Core.EnableLogCollection(LogCollectionState.Enabled);
             
+           
 
             UploadLogCommand();
 
@@ -70,12 +72,10 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
+            linphoneCore.RootCa = CaPath;
+            linphoneCore.VerifyServerCertificates(true);
+          
 
-            linphoneCore.VerifyServerCertificates(false);
-
-            /*linphoneCore.Transports.TcpPort =  0;
-            linphoneCore.Transports.TlsPort = -1;
-            linphoneCore.Transports.UdpPort =  0;*/
 
 
             Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
@@ -277,7 +277,7 @@ namespace LibLinphone.Android.LinphoneUtils
         }
         
 
-        public static void Start()
+        public static void Start(string caName=null)
         {
             Java.Lang.JavaSystem.LoadLibrary("c++_shared");
             Java.Lang.JavaSystem.LoadLibrary("bctoolbox");
@@ -292,7 +292,7 @@ namespace LibLinphone.Android.LinphoneUtils
             AssetManager assets = Application.Context.Assets;
             string path = Application.Context.FilesDir.AbsolutePath;
             string rc_path = path + "/default_rc";
-            string ca_path = path + "/rootca.pem";
+            
             using (var br = new BinaryReader(Application.Context.Assets.Open("linphonerc_default")))
             {
                 using (var bw = new BinaryWriter(new FileStream(rc_path, FileMode.Create)))
@@ -303,10 +303,28 @@ namespace LibLinphone.Android.LinphoneUtils
                     {
                         bw.Write(buffer, 0, length);
                     }
-                }
+                }     
+            }
 
-                RcPath = rc_path;
+            RcPath = rc_path;
+            if (!String.IsNullOrEmpty(caName))
+            {
+                string ca_path = path + $"/{caName}";
                 CaPath = ca_path;
+
+                using (var br = new BinaryReader(Application.Context.Assets.Open(caName)))
+                {
+                    using (var bw = new BinaryWriter(new FileStream(ca_path, FileMode.Create)))
+                    {
+                        byte[] buffer = new byte[2048];
+                        int length = 0;
+                        while ((length = br.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            bw.Write(buffer, 0, length);
+                        }
+                    }
+
+                }
             }
 
             string factory_path = path + "/factory_rc";
