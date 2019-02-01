@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -459,9 +459,9 @@ namespace LibLinphone.Android.LinphoneUtils
                         }
                         catch (Exception ex)
                         {
-                            Log("error with listenner, OnCall");
+                            Log($"error with listenner, OnCall ex {ex}");
                         }
-                    }
+                    } 
                 }
             }
             catch (Exception ex) { }
