@@ -62,11 +62,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="LinphoneUtils\LinphoneEngineAndroid.cs" />
     <Compile Include="LinphoneUtils\LinphoneManagerAndroid.cs" />
     <Compile Include="LinphoneUtils\LinphoneVideoViewAndroid.cs" />
     <Compile Include="LinphoneUtils\LinphoneWrapper.cs" />
+    <Compile Include="LinphoneUtils\Utils.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

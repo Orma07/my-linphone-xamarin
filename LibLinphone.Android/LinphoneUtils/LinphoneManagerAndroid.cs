@@ -1,15 +1,12 @@
 ﻿using LibLinphone.Android.LinphoneUtils;
-using LibLinphone.Droid.LinphoneUtils;
-using LibLinphone.Interfaces;
+using LibLinphone.forms.Interfaces;
 
 [assembly: Xamarin.Forms.Dependency(typeof(LinphoneManagerAndroid))]
-namespace LibLinphone.Droid.LinphoneUtils
+namespace LibLinphone.Android.LinphoneUtils
 {
-
     public class LinphoneManagerAndroid : ILinphoneManager
     {
         LinphoneEngineAndroid LinphoneEngine;
-        
 
         public bool AcceptCall()
         {

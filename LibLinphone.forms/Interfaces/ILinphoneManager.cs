@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LibLinphone.Interfaces
+namespace LibLinphone.forms.Interfaces
 {
     public interface ILinphoneManager
     {
@@ -31,8 +31,6 @@ namespace LibLinphone.Interfaces
         int CallsNb();
         bool IsInCall();
         void CallSip(string username);
-
-
     }
 
     public class CallArgs : EventArgs

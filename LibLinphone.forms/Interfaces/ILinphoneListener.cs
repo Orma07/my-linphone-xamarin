@@ -1,4 +1,4 @@
-﻿namespace LibLinphone.Interfaces
+﻿namespace LibLinphone.forms.Interfaces
 {
     public interface ILinphoneListener
     {

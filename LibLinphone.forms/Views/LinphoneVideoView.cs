@@ -1,7 +1,7 @@
 ﻿using System;
 using Xamarin.Forms;
 
-namespace LibLinphone.Views
+namespace LibLinphone.forms.Views
 {
     public class LinphoneVideoView : ContentView
     {
@@ -11,7 +11,6 @@ namespace LibLinphone.Views
         {
             ZoomEvent?.Invoke(this, new ZoomEventsArg(zoomType));
         }
-
     }
     public enum ZoomType
     {
