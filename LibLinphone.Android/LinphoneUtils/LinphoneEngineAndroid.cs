@@ -47,12 +47,15 @@ namespace LibLinphone.Android.LinphoneUtils
             // Required to be able to store logs as file
             //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
             //Core.EnableLogCollection(LogCollectionState.Enabled);
-
-            //UploadLogCommand();
-            //LoggingService.Instance.LogLevel = LogLevel.Debug;
-            //LinphoneWrapper.setNativeLogHandler();
-            //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
             //CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
+            //UploadLogCommand();
+
+#if DEBUGDEV
+            // Required to be able to log Linphone Logs
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
+            //LinphoneWrapper.setNativeLogHandler();
+            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+#endif
             
             LinphoneCore.NetworkReachable = true;
             LinphoneCore.RingDuringIncomingEarlyMedia = false;
@@ -326,7 +329,7 @@ namespace LibLinphone.Android.LinphoneUtils
                 : $"linphone log upload state -> {state}");
         }*/
 
-        /*private void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
+        private void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
         {
             var now = DateTime.Now.ToString("hh:mm:ss");
             var log = now + " [";
@@ -343,7 +346,6 @@ namespace LibLinphone.Android.LinphoneUtils
                     break;
                 case LogLevel.Warning:
                     log += "WARNING";
-
                     break;
                 case LogLevel.Fatal:
                     log += "FATAL";
@@ -356,7 +358,7 @@ namespace LibLinphone.Android.LinphoneUtils
             }
             log += "] (" + domain + ") " + message;
             Log(log);
-        }*/
+        }
 
         private void OnConfigurationStatus(Core lc, ConfiguringState status, string message)
         {
@@ -452,18 +454,16 @@ namespace LibLinphone.Android.LinphoneUtils
             Debug.WriteLine($"LINPHONE MANAGER: {message}");
         }
 
-        
-        
         public void LinphoneCoreIterateAsync()
         {
             Xamarin.Forms.Device.StartTimer(TimeSpan.FromMilliseconds(50), () =>
             {
                 try
                 {
-                   // Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
-                   // {
+                    //Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+                    //{
                         LinphoneCore.Iterate();
-                   // });
+                    //});
                 }
                 catch(Exception e)
                 {
@@ -595,7 +595,7 @@ namespace LibLinphone.Android.LinphoneUtils
             }
             catch (Exception ex)
             {
-                Log(ex.ToString());
+                Utils.TraceException(ex);
             }
 
         }
@@ -608,7 +608,7 @@ namespace LibLinphone.Android.LinphoneUtils
             }
             catch (Exception ex)
             {
-                Log(ex.ToString());
+                Utils.TraceException(ex);
             }
         }
 
