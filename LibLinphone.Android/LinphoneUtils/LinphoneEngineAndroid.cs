@@ -453,9 +453,7 @@ namespace LibLinphone.Android.LinphoneUtils
             else
             {
                 Log($"Register, state - {state}, message - {message}");
-                Init();
-
-
+                //Init();
             }
             RegisterState = state;
             lock (LinphoneListeners)
