@@ -17,32 +17,46 @@ namespace LibLinphone.Android.LinphoneUtils
     public class LinphoneEngineAndroid
     {
         public static LinphoneEngineAndroid Instance => _instance ?? (_instance = new LinphoneEngineAndroid());
-        public Core LinphoneCore { get; }
+             private Core linphoneCore;
+        public Core LinphoneCore
+        {
+            get
+            {
+                return linphoneCore;
+            }
+        }
         public List<ILinphoneListener> LinphoneListeners { get; set; }
         public static string RcPath { get; private set; }
         public static string CaPath { get; private set; }
         public static string FactoryPath { get; private set; }
         public RegistrationState RegisterState { get; private set; }
 
-        //private static readonly CancellationTokenSource CancelLogTask = new CancellationTokenSource();
         
         private static LinphoneEngineAndroid _instance;
         private const int PermissionsRequest = 101;        
         private Call LastCall;
         private int nRetryTerminateCalls;
+        private bool iterateLinphoneCore = true;
+        private CoreListener CoreListener;
 
         private LinphoneEngineAndroid()
         {
+            Init();
+        }
+        
+
+        private void Init()
+        {
             Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
             Log($"Linphone version {Core.Version}");
-            
-            var coreListener = Factory.Instance.CreateCoreListener();
-            coreListener.OnGlobalStateChanged = OnGlobal;
+
+            CoreListener = Factory.Instance.CreateCoreListener();
+            CoreListener.OnGlobalStateChanged = OnGlobal;
             LinphoneListeners = new List<ILinphoneListener>();
             RegisterState = RegistrationState.None;
 
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
-            LinphoneCore = Factory.Instance.CreateCore(coreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
+            linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
 
             // Required to be able to store logs as file
             //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
@@ -53,32 +67,27 @@ namespace LibLinphone.Android.LinphoneUtils
 #if DEBUGDEV
             // Required to be able to log Linphone Logs
             LoggingService.Instance.LogLevel = LogLevel.Debug;
-            //LinphoneWrapper.setNativeLogHandler();
-            LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+            LinphoneWrapper.setNativeLogHandler();
+            //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 #endif
             
-            LinphoneCore.NetworkReachable = true;
-            LinphoneCore.RingDuringIncomingEarlyMedia = false;
-            LinphoneCore.VideoCaptureEnabled = false;
-            LinphoneCore.VideoDisplayEnabled = true;
-            LinphoneCore.RootCa = CaPath;
-            LinphoneCore.VerifyServerCertificates(true);
-
-            Log("Transports, " +
-                $"TCP: {LinphoneCore.Transports.TcpPort}, " +
-                $"TLS: {LinphoneCore.Transports.TlsPort}, " +
-                $"UDP: {LinphoneCore.Transports.UdpPort}");
+            linphoneCore.NetworkReachable = true;
+            linphoneCore.RingDuringIncomingEarlyMedia = false;
+            linphoneCore.VideoCaptureEnabled = false;
+            linphoneCore.VideoDisplayEnabled = true;
+            linphoneCore.RootCa = CaPath;
+            linphoneCore.VerifyServerCertificates(true);
 
             LogCodecs();
 
-            coreListener.OnCallStateChanged = OnCall;
-            coreListener.OnCallStatsUpdated = OnStats;
-            coreListener.OnRegistrationStateChanged = OnRegistration;
+            CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnCallStatsUpdated = OnStats;
+            CoreListener.OnRegistrationStateChanged = OnRegistration;
 
-            coreListener.OnConfiguringStatus = OnConfigurationStatus;
+            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
-            LinphoneCore.EchoCancellationEnabled = true;
-            LinphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
+            linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
 
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
             //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
@@ -94,17 +103,17 @@ namespace LibLinphone.Android.LinphoneUtils
         public bool AcceptCall()
         {
             var result = false;
-            var call = LinphoneCore.CurrentCall;
+            var call = linphoneCore.CurrentCall;
             if (call != null && (call.State == CallState.IncomingReceived || call.State == CallState.IncomingEarlyMedia))
             {
-                LinphoneCore.AcceptCall(call);
+                linphoneCore.AcceptCall(call);
                 result = true;
             }
             else
             {
                 try
                 {
-                    LinphoneCore.AcceptCall(LastCall);
+                    linphoneCore.AcceptCall(LastCall);
                 }
                 catch (Exception ex)
                 {
@@ -116,18 +125,18 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void ChangeMicValue()
         {
-            LinphoneCore.MicEnabled = !LinphoneCore.MicEnabled;
+            linphoneCore.MicEnabled = !linphoneCore.MicEnabled;
         }
         
         public void SetMicValue(bool value)
         {
-            LinphoneCore.MicEnabled = value;
+            linphoneCore.MicEnabled = value;
         }
 
         public bool IsInCall()
         {
             var result = false;
-            var state = LinphoneCore.CurrentCall?.State;
+            var state = linphoneCore.CurrentCall?.State;
             if (state != null)
                 result = true;
             return result;
@@ -135,18 +144,18 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public int CallsNb()
         {
-            return LinphoneCore.CallsNb;
+            return linphoneCore.CallsNb;
         }
 
         public void CallSip(string username)
         {
             try
             {
-                if (RegisterState == RegistrationState.Ok && LinphoneCore.CallsNb == 0)
+                if (RegisterState == RegistrationState.Ok && linphoneCore.CallsNb == 0)
                 {
-                    var addr = LinphoneCore.InterpretUrl(username);
+                    var addr = linphoneCore.InterpretUrl(username);
                     if (addr != null)
-                        LinphoneCore.InviteAddress(addr);
+                        linphoneCore.InviteAddress(addr);
                 }
             }
             catch(Exception ex) 
@@ -158,15 +167,15 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void SetViewCall(CallPCL call)
         {
-            if (LinphoneCore.CallsNb > 0)
+            if (linphoneCore.CallsNb > 0)
             {
-                var currentCall = LinphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
+                var currentCall = linphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
                 if (currentCall != null)
                 {
-                    LinphoneCore.VideoDisplayEnabled = true;
-                    LinphoneCore.VideoAdaptiveJittcompEnabled = true;
+                    linphoneCore.VideoDisplayEnabled = true;
+                    linphoneCore.VideoAdaptiveJittcompEnabled = true;
 
-                    var param = LinphoneCore.CreateCallParams(currentCall);
+                    var param = linphoneCore.CreateCallParams(currentCall);
                     param.VideoEnabled = true;
                     param.VideoDirection = MediaDirection.RecvOnly;
                     param.AudioDirection = MediaDirection.SendRecv;
@@ -180,19 +189,19 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void SetViewCallOutgoing(CallPCL call)
         {
-            if (LinphoneCore.CallsNb > 0)
+            if (linphoneCore.CallsNb > 0)
             {
-                var currentCall = LinphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
+                var currentCall = linphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
                 if (currentCall != null)
                 {
-                    LinphoneCore.VideoDisplayEnabled = true;
-                    LinphoneCore.VideoAdaptiveJittcompEnabled = true;
+                    linphoneCore.VideoDisplayEnabled = true;
+                    linphoneCore.VideoAdaptiveJittcompEnabled = true;
                     
-                    var param = LinphoneCore.CreateCallParams(currentCall);
+                    var param = linphoneCore.CreateCallParams(currentCall);
                     param.VideoEnabled = true;
                     param.VideoDirection = MediaDirection.RecvOnly;
                     param.AudioDirection = MediaDirection.SendRecv;
-                    LinphoneCore.UpdateCall(currentCall, param);
+                    linphoneCore.UpdateCall(currentCall, param);
 
                 }
                 else
@@ -206,13 +215,13 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             try
             {
-                if (LinphoneCore.CurrentCall != null)
-                    LinphoneCore.TerminateAllCalls();
+                if (linphoneCore.CurrentCall != null)
+                    linphoneCore.TerminateAllCalls();
                 else
                 {
                     try
                     {
-                        LinphoneCore.TerminateCall(LastCall);
+                        linphoneCore.TerminateCall(LastCall);
                     }
                     catch (Exception ex)
                     {
@@ -292,10 +301,6 @@ namespace LibLinphone.Android.LinphoneUtils
             }
             FactoryPath = factoryPath;
 
-            //ScheduleJob();
-            //var startServiceIntent = new Intent(Application.Context, typeof(LinphoneJobService));
-            //Application.Context.StartService(startServiceIntent);
-
             if (int.Parse(global::Android.OS.Build.VERSION.Sdk) >= 23)
             {
                 var permissions = new List<string>();
@@ -310,56 +315,8 @@ namespace LibLinphone.Android.LinphoneUtils
             }
         }
 
-        /*private void UploadLogCommand()
-        {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    LinphoneCore.UploadLogCollection();
-                    await Task.Delay(TimeSpan.FromSeconds(60), CancelLogTask.Token);
-                }
-            }, CancelLogTask.Token);
-        }*/
-
-        /*private void OnLogUpload(Core lc, CoreLogCollectionUploadState state, string info)
-        {
-            Log(state == CoreLogCollectionUploadState.Delivered
-                ? $"linphone log upload, link -> {info}"
-                : $"linphone log upload state -> {state}");
-        }*/
-
-        private void OnLog(LoggingService logService, string domain, LogLevel lev, string message)
-        {
-            var now = DateTime.Now.ToString("hh:mm:ss");
-            var log = now + " [";
-            switch (lev)
-            {
-                case LogLevel.Debug:
-                    log += "DEBUG";
-                    break;
-                case LogLevel.Error:
-                    log += "ERROR";
-                    break;
-                case LogLevel.Message:
-                    log += "MESSAGE";
-                    break;
-                case LogLevel.Warning:
-                    log += "WARNING";
-                    break;
-                case LogLevel.Fatal:
-                    log += "FATAL";
-                    break;
-                case LogLevel.Trace:
-                    log += "TRACE";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(lev), lev, null);
-            }
-            log += "] (" + domain + ") " + message;
-            Log(log);
-        }
-
+        
+        
         private void OnConfigurationStatus(Core lc, ConfiguringState status, string message)
         {
             Log($"OnConfiguration, status: {status}");
@@ -379,7 +336,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
                 if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall != null)
                 {
-                    LinphoneCore.TerminateCall(LastCall);
+                    linphoneCore.TerminateCall(LastCall);
                     LastCall = null;
                 }
 
@@ -387,7 +344,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     LastCall = lcall;
 
                 var call = new CallPCL {UsernameCaller = lcall.RemoteAddress.Username};
-                var param = LinphoneCore.CreateCallParams(lcall);
+                var param = linphoneCore.CreateCallParams(lcall);
 
                 lock (LinphoneListeners)
                 {
@@ -419,8 +376,8 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             try
             {
-                var videoCodecs = LinphoneCore.VideoPayloadTypes;
-                var audioCodecs = LinphoneCore.AudioPayloadTypes;
+                var videoCodecs = linphoneCore.VideoPayloadTypes;
+                var audioCodecs = linphoneCore.AudioPayloadTypes;
                 
                 foreach (var pt in videoCodecs)
                 {
@@ -456,13 +413,14 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void LinphoneCoreIterateAsync()
         {
+            iterateLinphoneCore = true;
             Xamarin.Forms.Device.StartTimer(TimeSpan.FromMilliseconds(50), () =>
             {
                 try
                 {
                     //Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
                     //{
-                        LinphoneCore.Iterate();
+                        linphoneCore.Iterate();
                     //});
                 }
                 catch(Exception e)
@@ -481,13 +439,24 @@ namespace LibLinphone.Android.LinphoneUtils
                         }
                     }
                 }
-                return true;
+                return iterateLinphoneCore;
             });
         }
 
         private void OnRegistration(Core lc, ProxyConfig config, RegistrationState state, string message)
         {
-            Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, domain - {config.Domain}, route - {config.Route}, message - {message}");
+            if (config != null && config.FindAuthInfo()!=null)
+            {
+                Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, " +
+                    $"domain - {config.Domain}, route - {config.Route}, message - {message}");
+            }
+            else
+            {
+                Log($"Register, state - {state}, message - {message}");
+                Init();
+
+
+            }
             RegisterState = state;
             lock (LinphoneListeners)
             {
@@ -538,14 +507,11 @@ namespace LibLinphone.Android.LinphoneUtils
 
             try
             {
-
-                var prop = Xamarin.Forms.Application.Current.Properties;
-
                 var authInfo = Factory.Instance.CreateAuthInfo(username, null, password, null, null, domain);
-                LinphoneCore.AddAuthInfo(authInfo);         
+                linphoneCore.AddAuthInfo(authInfo);         
                 
                 var identity = Factory.Instance.CreateAddress($"sip:{username}@{domain}");
-                var proxyConfig = LinphoneCore.CreateProxyConfig();
+                var proxyConfig = linphoneCore.CreateProxyConfig();
                 proxyConfig.Edit();
                 if (isMock)
                 {
@@ -556,22 +522,22 @@ namespace LibLinphone.Android.LinphoneUtils
                 if (isCloud)
                 {
                     identity.Transport = TransportType.Tls;
-                    var transport = LinphoneCore.Transports;
+                    var transport = linphoneCore.Transports;
                     transport.TcpPort = 0;
                     transport.TlsPort = -1;
                     transport.UdpPort = 0;
-                    LinphoneCore.Transports = transport;
+                    linphoneCore.Transports = transport;
                 }
                 else
                 {
                     identity.Transport = TransportType.Tcp;
-                    var transport = LinphoneCore.Transports;
+                    var transport = linphoneCore.Transports;
                     transport.TcpPort = -1;
                     transport.TlsPort = 0;
                     transport.UdpPort = 0;
-                    LinphoneCore.Transports = transport;
+                    linphoneCore.Transports = transport;
                 }
-                Log($"Transports, TCP: {LinphoneCore.Transports.TcpPort}, TLS: {LinphoneCore.Transports.TlsPort}, UDP: {LinphoneCore.Transports.UdpPort}");
+                Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                 identity.Username = username;
                 identity.Domain = domain;
                 //identity.Password = password;
@@ -588,10 +554,10 @@ namespace LibLinphone.Android.LinphoneUtils
                 proxyConfig.Route = routeAddr;  //domain;
                 proxyConfig.RegisterEnabled = true;
                 proxyConfig.Done();
-                LinphoneCore.AddProxyConfig(proxyConfig);
-                LinphoneCore.DefaultProxyConfig = proxyConfig;
+                linphoneCore.AddProxyConfig(proxyConfig);
+                linphoneCore.DefaultProxyConfig = proxyConfig;
 
-                LinphoneCore.RefreshRegisters();
+                linphoneCore.RefreshRegisters();
             }
             catch (Exception ex)
             {
@@ -604,7 +570,9 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             try
             {
-                LinphoneCore.ClearProxyConfig();
+                linphoneCore.ClearAllAuthInfo();
+                linphoneCore.ClearProxyConfig();
+               
             }
             catch (Exception ex)
             {
