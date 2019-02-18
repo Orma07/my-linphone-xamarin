@@ -57,6 +57,8 @@ namespace LibLinphone.Android.LinphoneUtils
 
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
             linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
+            
+         
 
             // Required to be able to store logs as file
             //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
@@ -453,7 +455,9 @@ namespace LibLinphone.Android.LinphoneUtils
             else
             {
                 Log($"Register, state - {state}, message - {message}");
-                //Init();
+               // Init();
+
+
             }
             RegisterState = state;
             lock (LinphoneListeners)
@@ -525,6 +529,8 @@ namespace LibLinphone.Android.LinphoneUtils
                     transport.TlsPort = -1;
                     transport.UdpPort = 0;
                     linphoneCore.Transports = transport;
+                    proxyConfig.ServerAddr =$"<sip:{serverAddr};transport=tls>";
+                    proxyConfig.Route = $"<sip:{serverAddr};transport=tls>";
                 }
                 else
                 {
@@ -534,6 +540,8 @@ namespace LibLinphone.Android.LinphoneUtils
                     transport.TlsPort = 0;
                     transport.UdpPort = 0;
                     linphoneCore.Transports = transport;
+                    proxyConfig.ServerAddr = $"<sip:{serverAddr};transport=tcp>";
+                    proxyConfig.Route = $"<sip:{serverAddr};transport=tcp>";
                 }
                 Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                 identity.Username = username;
@@ -548,8 +556,7 @@ namespace LibLinphone.Android.LinphoneUtils
                 }
 
                 proxyConfig.IdentityAddress = identity;
-                proxyConfig.ServerAddr = serverAddr;
-                proxyConfig.Route = routeAddr;  //domain;
+               
                 proxyConfig.RegisterEnabled = true;
                 proxyConfig.Done();
                 linphoneCore.AddProxyConfig(proxyConfig);
@@ -570,7 +577,8 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 linphoneCore.ClearAllAuthInfo();
                 linphoneCore.ClearProxyConfig();
-               
+                Init();
+
             }
             catch (Exception ex)
             {
