@@ -55,7 +55,9 @@ namespace LibLinphone.Android.LinphoneUtils
         private void OnVideoRenderingSurfaceDestroyed(object sender, AndroidVideoWindowListenerArgs e)
         {
             try
-            {
+            {    
+                captureCamera.Dispose();
+
                 androidView.Release();
                 androidView.Dispose();
             }
@@ -80,6 +82,14 @@ namespace LibLinphone.Android.LinphoneUtils
             base.OnDetachedFromWindow();
             if(LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId != IntPtr.Zero)
                 LinphoneEngineAndroid.Instance.LinphoneCore.NativeVideoWindowId = IntPtr.Zero;
+
+            if (androidVideoWindowListener != null)
+            {
+                androidVideoWindowListener.OnVideoRenderingSurfaceReadyEvent -= OnVideoRenderingSurfaceReady;
+                androidVideoWindowListener.OnVideoRenderingSurfaceDestroyedEvent -= OnVideoRenderingSurfaceDestroyed;
+                androidVideoWindowListener.Dispose();
+            }
+            Element.SizeChanged -= SizeChanged_Event;
         }
 
         protected override void OnAttachedToWindow()
