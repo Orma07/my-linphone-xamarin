@@ -30,6 +30,8 @@ namespace LibLinphone.Android.LinphoneUtils
         public static string CaPath { get; private set; }
         public static string FactoryPath { get; private set; }
         public RegistrationState RegisterState { get; private set; }
+        private string Imei;
+        private string MyName;
 
         
         private static LinphoneEngineAndroid _instance;
@@ -77,6 +79,7 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.RingDuringIncomingEarlyMedia = false;
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
+        
             linphoneCore.RootCa = CaPath;
             linphoneCore.VerifyServerCertificates(true);
 
@@ -108,7 +111,13 @@ namespace LibLinphone.Android.LinphoneUtils
             var call = linphoneCore.CurrentCall;
             if (call != null && (call.State == CallState.IncomingReceived || call.State == CallState.IncomingEarlyMedia))
             {
-                linphoneCore.AcceptCall(call);
+                var callParams = linphoneCore.CreateCallParams(call);
+                callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
+                callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
+                callParams.VideoEnabled = true;
+                callParams.VideoDirection = MediaDirection.RecvOnly;
+                callParams.AudioDirection = MediaDirection.SendRecv;
+                linphoneCore.AcceptCallWithParams(call, callParams);
                 result = true;
             }
             else
@@ -157,7 +166,16 @@ namespace LibLinphone.Android.LinphoneUtils
                 {
                     var addr = linphoneCore.InterpretUrl(username);
                     if (addr != null)
-                        linphoneCore.InviteAddress(addr);
+                    {
+                        var callParams = linphoneCore.CreateCallParams(null);
+                        callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
+                        callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
+                        callParams.VideoEnabled = true;
+                        callParams.VideoDirection = MediaDirection.RecvOnly;
+                        callParams.AudioDirection = MediaDirection.SendRecv;
+                        linphoneCore.InviteAddressWithParams(addr, callParams);
+                        //linphoneCore.InviteAddress(addr);
+                    }
                 }
             }
             catch(Exception ex) 
@@ -170,6 +188,7 @@ namespace LibLinphone.Android.LinphoneUtils
         public void SetViewCall(CallPCL call)
         {
             if (linphoneCore.CallsNb > 0)
+
             {
                 var currentCall = linphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
                 if (currentCall != null)
@@ -196,7 +215,7 @@ namespace LibLinphone.Android.LinphoneUtils
                 var currentCall = linphoneCore.Calls.FirstOrDefault(lcall => lcall.RemoteAddress.Username == call.UsernameCaller);
                 if (currentCall != null)
                 {
-                    linphoneCore.VideoDisplayEnabled = true;
+                  linphoneCore.VideoDisplayEnabled = true;
                     linphoneCore.VideoAdaptiveJittcompEnabled = true;
                     
                     var param = linphoneCore.CreateCallParams(currentCall);
@@ -506,9 +525,13 @@ namespace LibLinphone.Android.LinphoneUtils
             bool isMock,
             bool isCloud)
         {
-
+            Imei = imei;
+            MyName = myName;
             try
             {
+                linphoneCore.ClearAllAuthInfo();
+                linphoneCore.ClearProxyConfig();
+
                 var authInfo = Factory.Instance.CreateAuthInfo(username, null, password, null, null, domain);
                 linphoneCore.AddAuthInfo(authInfo);         
                 
@@ -519,8 +542,8 @@ namespace LibLinphone.Android.LinphoneUtils
                 {
                     identity = Factory.Instance.CreateAddress($"sip:sample@domain.tld");
                 }
-             
-             
+
+
                 if (isCloud)
                 {
                     identity.Transport = TransportType.Tls;
@@ -529,7 +552,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     transport.TlsPort = -1;
                     transport.UdpPort = 0;
                     linphoneCore.Transports = transport;
-                    proxyConfig.ServerAddr =$"<sip:{serverAddr};transport=tls>";
+                    proxyConfig.ServerAddr = $"<sip:{serverAddr};transport=tls>";
                     proxyConfig.Route = $"<sip:{serverAddr};transport=tls>";
                 }
                 else
@@ -542,7 +565,11 @@ namespace LibLinphone.Android.LinphoneUtils
                     linphoneCore.Transports = transport;
                     proxyConfig.ServerAddr = $"<sip:{serverAddr};transport=tcp>";
                     proxyConfig.Route = $"<sip:{serverAddr};transport=tcp>";
+                    proxyConfig.Expires = LinphoneConstants.LINPHONE_PROXY_CFG_EXPIRE_TIME_SEC;
+                    proxyConfig.PublishEnabled = false;
+                    proxyConfig.ContactParameters = "+sip.instance=\"<urn:uuid:" + imei + ">\"";
                 }
+
                 Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                 identity.Username = username;
                 identity.Domain = domain;
@@ -551,8 +578,8 @@ namespace LibLinphone.Android.LinphoneUtils
                
                 if (!isMock)
                 {
-                    proxyConfig.SetCustomHeader("Mobile-IMEI", imei);
-                    proxyConfig.SetCustomHeader("MyName", myName);
+                    proxyConfig.SetCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, imei);
+                    proxyConfig.SetCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, myName);
                 }
 
                 proxyConfig.IdentityAddress = identity;
