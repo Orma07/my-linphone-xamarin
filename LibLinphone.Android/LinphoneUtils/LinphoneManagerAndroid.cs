@@ -8,9 +8,9 @@ namespace LibLinphone.Android.LinphoneUtils
     {
         LinphoneEngineAndroid LinphoneEngine;
 
-        public bool AcceptCall()
+        public void AcceptCall()
         {
-            return LinphoneEngine.AcceptCall();
+            LinphoneEngine.AcceptCall();
         }
 
         public LinphoneManagerAndroid()

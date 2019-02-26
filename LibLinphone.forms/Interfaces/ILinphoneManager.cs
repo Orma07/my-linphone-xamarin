@@ -13,7 +13,7 @@ namespace LibLinphone.forms.Interfaces
         /// 
         /// </summary>
         /// <returns>tells me if call is realy accepted</returns>
-        bool AcceptCall();
+        void AcceptCall();
         void TerminateAllCalls();
         void RegisterLinphone(
             string username,
