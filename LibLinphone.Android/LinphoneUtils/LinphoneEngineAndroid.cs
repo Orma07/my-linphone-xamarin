@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
+using Android.Media;
 using Android.Runtime;
 using LibLinphone.forms.Interfaces;
 using Linphone;
@@ -38,15 +40,11 @@ namespace LibLinphone.Android.LinphoneUtils
         private int nRetryTerminateCalls;
         private bool iterateLinphoneCore = true;
         private CoreListener CoreListener;
+        public bool EnableSpeaker { get; set; }
 
         private LinphoneEngineAndroid()
         {
-            Init();
-        }
-        
-
-        private void Init()
-        {
+            EnableSpeaker = true;
             Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
             Log($"Linphone version {Core.Version}");
 
@@ -55,10 +53,25 @@ namespace LibLinphone.Android.LinphoneUtils
             LinphoneListeners = new List<ILinphoneListener>();
             RegisterState = RegistrationState.None;
 
+            InitLinphoneCore();
+
+            LogCodecs();
+
+            CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnCallStatsUpdated = OnStats;
+            CoreListener.OnRegistrationStateChanged = OnRegistration;
+
+            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
+
+          
+            LinphoneCoreIterateAsync();
+        }
+        
+
+        private void InitLinphoneCore()
+        {
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
             linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
-            
-         
 
             // Required to be able to store logs as file
             //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
@@ -72,21 +85,13 @@ namespace LibLinphone.Android.LinphoneUtils
             LinphoneWrapper.setNativeLogHandler();
             //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 #endif
-            
+
             linphoneCore.NetworkReachable = true;
             linphoneCore.RingDuringIncomingEarlyMedia = false;
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
             linphoneCore.RootCa = CaPath;
             linphoneCore.VerifyServerCertificates(true);
-
-            LogCodecs();
-
-            CoreListener.OnCallStateChanged = OnCall;
-            CoreListener.OnCallStatsUpdated = OnStats;
-            CoreListener.OnRegistrationStateChanged = OnRegistration;
-
-            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
             linphoneCore.EchoCancellationEnabled = true;
             linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
@@ -98,8 +103,6 @@ namespace LibLinphone.Android.LinphoneUtils
             // linphoneCore.BeamformingMicDist = 184f;
             // linphoneCore.BeamformingAngleDeg = 0;
             // linphoneCore.BeamformingEnabled = true;
-
-            LinphoneCoreIterateAsync();
         }
 
         public bool AcceptCall()
@@ -329,10 +332,28 @@ namespace LibLinphone.Android.LinphoneUtils
             Log("Call stats: " + stats.DownloadBandwidth + " kbits/s / " + stats.UploadBandwidth + " kbits/s");
         }
 
+        private void EnableAndroidSpeaker()
+        {
+            var audioManager = (AudioManager)Application.Context.GetSystemService(Context.AudioService);
+            audioManager.Mode = Mode.InCall;
+            if (!audioManager.SpeakerphoneOn)
+            {
+                audioManager.SpeakerphoneOn = true;
+            }
+
+        }
+
         private void OnCall(Core lc, Call lcall, CallState state, string message)
         {
             try
             {
+                if (state == CallState.IncomingReceived || state == CallState.OutgoingRinging)
+                {
+                    //linphoneCore.StartEchoCancellerCalibration();
+                    if (EnableSpeaker)
+                        EnableAndroidSpeaker();
+                }
+
                 if (state == CallState.End || state == CallState.Error)
                     LastCall = null;
 
@@ -577,7 +598,7 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 linphoneCore.ClearAllAuthInfo();
                 linphoneCore.ClearProxyConfig();
-                Init();
+                InitLinphoneCore();
 
             }
             catch (Exception ex)
