@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
+using Android.Media;
 using Android.Runtime;
 using LibLinphone.forms.Interfaces;
 using Linphone;
@@ -41,8 +43,11 @@ namespace LibLinphone.Android.LinphoneUtils
         private bool iterateLinphoneCore = true;
         private CoreListener CoreListener;
 
+        public bool EnableSpeaker { get; set; }
+
         private LinphoneEngineAndroid()
         {
+            EnableSpeaker = true;
             Init();
         }
         
@@ -94,6 +99,9 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.EchoCancellationEnabled = true;
             linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
 
+            
+
+
             //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
             //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
 
@@ -104,6 +112,14 @@ namespace LibLinphone.Android.LinphoneUtils
 
             LinphoneCoreIterateAsync();
         }
+
+        public void SetGain(float play, float mic)
+        {
+            Log($"Setting gains: MIC = {mic}, PLAYBACK = {play}");
+            linphoneCore.MicGainDb = mic;
+            linphoneCore.PlaybackGainDb = play;
+        }
+
 
         public bool AcceptCall()
         {
@@ -348,21 +364,34 @@ namespace LibLinphone.Android.LinphoneUtils
             Log("Call stats: " + stats.DownloadBandwidth + " kbits/s / " + stats.UploadBandwidth + " kbits/s");
         }
 
+        private void SaveLastCall(Call lcall, CallState state)
+        {
+            if (state == CallState.End || state == CallState.Error)
+                LastCall = null;
+
+            if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall != null)
+            {
+                linphoneCore.TerminateCall(LastCall);
+                LastCall = null;
+            }
+
+            if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall == null)
+                LastCall = lcall;
+        }
+
         private void OnCall(Core lc, Call lcall, CallState state, string message)
         {
             try
             {
-                if (state == CallState.End || state == CallState.Error)
-                    LastCall = null;
-
-                if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall != null)
+                if(state == CallState.IncomingReceived || state == CallState.OutgoingRinging)
                 {
-                    linphoneCore.TerminateCall(LastCall);
-                    LastCall = null;
+                    //linphoneCore.StartEchoCancellerCalibration();
+                    if (EnableSpeaker)
+                        EnableAndroidSpeaker();
                 }
 
-                if ((state == CallState.IncomingReceived || state == CallState.OutgoingInit) && LastCall == null)
-                    LastCall = lcall;
+                SaveLastCall(lcall, state);
+                
 
                 var call = new CallPCL {UsernameCaller = lcall.RemoteAddress.Username};
                 var param = linphoneCore.CreateCallParams(lcall);
@@ -388,6 +417,17 @@ namespace LibLinphone.Android.LinphoneUtils
                 Utils.TraceException(e);
             }
 
+        }
+
+        private void EnableAndroidSpeaker()
+        {
+            var audioManager = (AudioManager)Application.Context.GetSystemService(Context.AudioService);
+            audioManager.Mode = Mode.InCall;
+            if (!audioManager.SpeakerphoneOn)
+            {
+                audioManager.SpeakerphoneOn = true;
+            }
+                
         }
 
         /// <summary>
@@ -499,11 +539,6 @@ namespace LibLinphone.Android.LinphoneUtils
             }
         }
 
-        public async void RegisterAsync()
-        {
-            await Task.Delay(TimeSpan.FromSeconds(4));
-        }
-
         /// <summary>
         /// Register to contact center
         /// </summary>
@@ -565,10 +600,12 @@ namespace LibLinphone.Android.LinphoneUtils
                     linphoneCore.Transports = transport;
                     proxyConfig.ServerAddr = $"<sip:{serverAddr};transport=tcp>";
                     proxyConfig.Route = $"<sip:{serverAddr};transport=tcp>";
-                    proxyConfig.Expires = LinphoneConstants.LINPHONE_PROXY_CFG_EXPIRE_TIME_SEC;
-                    proxyConfig.PublishEnabled = false;
-                    proxyConfig.ContactParameters = "+sip.instance=\"<urn:uuid:" + imei + ">\"";
                 }
+
+                proxyConfig.Expires = LinphoneConstants.LINPHONE_PROXY_CFG_EXPIRE_TIME_SEC;
+                proxyConfig.PublishEnabled = false;
+                proxyConfig.ContactParameters = "+sip.instance=\"<urn:uuid:" + imei + ">\"";
+                linphoneCore.KeepAliveEnabled = true;
 
                 Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                 identity.Username = username;
@@ -590,6 +627,8 @@ namespace LibLinphone.Android.LinphoneUtils
                 linphoneCore.DefaultProxyConfig = proxyConfig;
 
                 linphoneCore.RefreshRegisters();
+
+
             }
             catch (Exception ex)
             {
@@ -602,6 +641,15 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             try
             {
+                foreach (var proxyCfg in linphoneCore.ProxyConfigList)
+                {
+
+                    Log($"Unregistering {proxyCfg.IdentityAddress}");
+                    proxyCfg.Edit();
+                    proxyCfg.RegisterEnabled = false;
+                    proxyCfg.Done();
+
+                }
                 linphoneCore.ClearAllAuthInfo();
                 linphoneCore.ClearProxyConfig();
                 Init();

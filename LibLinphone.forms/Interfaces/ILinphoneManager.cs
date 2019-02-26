@@ -30,6 +30,8 @@ namespace LibLinphone.forms.Interfaces
         int CallsNb();
         bool IsInCall();
         void CallSip(string username);
+        void Set2FGains();
+        void SetIpGains();
     }
 
     public class CallArgs : EventArgs
