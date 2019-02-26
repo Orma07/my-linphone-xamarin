@@ -126,20 +126,16 @@ namespace LibLinphone.Android.LinphoneUtils
                 var call = linphoneCore.CurrentCall;
                 if (call != null && (call.State == CallState.IncomingReceived || call.State == CallState.IncomingEarlyMedia))
                 {
-                    linphoneCore.AcceptCall(call);
-                    var callParams = linphoneCore.CreateCallParams(call);
-                    callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
-                    callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
-                    callParams.VideoEnabled = true;
-                    callParams.VideoDirection = MediaDirection.RecvOnly;
-                    callParams.AudioDirection = MediaDirection.SendRecv;
-                    linphoneCore.AcceptCallWithParams(call, callParams);
-                }
-                else
-                {
                     try
                     {
-                        linphoneCore.AcceptCall(LastCall);
+                        linphoneCore.AcceptCall(call);
+                        var callParams = linphoneCore.CreateCallParams(call);
+                        callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
+                        callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
+                        callParams.VideoEnabled = true;
+                        callParams.VideoDirection = MediaDirection.RecvOnly;
+                        callParams.AudioDirection = MediaDirection.SendRecv;
+                        linphoneCore.AcceptCallWithParams(call, callParams);
                     }
                     catch (Exception ex)
                     {
