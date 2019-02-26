@@ -28,6 +28,9 @@ namespace LibLinphone.Android.LinphoneUtils
         public static string CaPath { get; private set; }
         public static string FactoryPath { get; private set; }
         public RegistrationState RegisterState { get; private set; }
+        private string Imei;
+        private string MyName;
+
         
         private static LinphoneEngineAndroid _instance;
         private const int PermissionsRequest = 101;        
@@ -43,60 +46,58 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private void Init()
         {
- //           Device.BeginInvokeOnMainThread(() =>
- //           {
-                Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
-                Log($"Linphone version {Core.Version}");
-    
-                CoreListener = Factory.Instance.CreateCoreListener();
-                CoreListener.OnGlobalStateChanged = OnGlobal;
-                LinphoneListeners = new List<ILinphoneListener>();
-                RegisterState = RegistrationState.None;
-    
-                // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
-                linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
-   
-                // Required to be able to store logs as file
-                //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
-                //Core.EnableLogCollection(LogCollectionState.Enabled);
-                //CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
-                //UploadLogCommand();
-    
-    #if DEBUGDEV
-                // Required to be able to log Linphone Logs
-                LoggingService.Instance.LogLevel = LogLevel.Debug;
-                LinphoneWrapper.setNativeLogHandler();
-                //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
-    #endif
-                
-                linphoneCore.NetworkReachable = true;
-                linphoneCore.RingDuringIncomingEarlyMedia = false;
-                linphoneCore.VideoCaptureEnabled = false;
-                linphoneCore.VideoDisplayEnabled = true;
-                linphoneCore.RootCa = CaPath;
-                linphoneCore.VerifyServerCertificates(true);
-    
-                LogCodecs();
-    
-                CoreListener.OnCallStateChanged = OnCall;
-                CoreListener.OnCallStatsUpdated = OnStats;
-                CoreListener.OnRegistrationStateChanged = OnRegistration;
-    
-                CoreListener.OnConfiguringStatus = OnConfigurationStatus;
-    
-                linphoneCore.EchoCancellationEnabled = true;
-                linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
-    
-                //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
-                //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
-    
-                // DON'T DELETE!
-                // linphoneCore.BeamformingMicDist = 184f;
-                // linphoneCore.BeamformingAngleDeg = 0;
-                // linphoneCore.BeamformingEnabled = true;
-    
-                LinphoneCoreIterate();
-//            });
+            Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
+            Log($"Linphone version {Core.Version}");
+
+            CoreListener = Factory.Instance.CreateCoreListener();
+            CoreListener.OnGlobalStateChanged = OnGlobal;
+            LinphoneListeners = new List<ILinphoneListener>();
+            RegisterState = RegistrationState.None;
+
+            // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
+            linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
+
+            // Required to be able to store logs as file
+            //Core.SetLogCollectionPath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            //Core.EnableLogCollection(LogCollectionState.Enabled);
+            //CoreListener.OnLogCollectionUploadStateChanged = OnLogUpload;
+            //UploadLogCommand();
+
+#if DEBUGDEV
+            // Required to be able to log Linphone Logs
+            LoggingService.Instance.LogLevel = LogLevel.Debug;
+            LinphoneWrapper.setNativeLogHandler();
+            //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
+#endif
+            
+            linphoneCore.NetworkReachable = true;
+            linphoneCore.RingDuringIncomingEarlyMedia = false;
+            linphoneCore.VideoCaptureEnabled = false;
+            linphoneCore.VideoDisplayEnabled = true;
+        
+            linphoneCore.RootCa = CaPath;
+            linphoneCore.VerifyServerCertificates(true);
+
+            LogCodecs();
+
+            CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnCallStatsUpdated = OnStats;
+            CoreListener.OnRegistrationStateChanged = OnRegistration;
+
+            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
+
+            linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
+
+            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
+            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
+
+            // DON'T DELETE!
+            // linphoneCore.BeamformingMicDist = 184f;
+            // linphoneCore.BeamformingAngleDeg = 0;
+            // linphoneCore.BeamformingEnabled = true;
+
+            LinphoneCoreIterate();
         }
 
         public void AcceptCall()
@@ -105,7 +106,16 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 var call = linphoneCore.CurrentCall;
                 if (call != null && (call.State == CallState.IncomingReceived || call.State == CallState.IncomingEarlyMedia))
+                {
                     linphoneCore.AcceptCall(call);
+                    var callParams = linphoneCore.CreateCallParams(call);
+                    callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
+                    callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
+                    callParams.VideoEnabled = true;
+                    callParams.VideoDirection = MediaDirection.RecvOnly;
+                    callParams.AudioDirection = MediaDirection.SendRecv;
+                    linphoneCore.AcceptCallWithParams(call, callParams);
+                }
                 else
                 {
                     try
@@ -160,7 +170,16 @@ namespace LibLinphone.Android.LinphoneUtils
                     {
                         var addr = linphoneCore.InterpretUrl(username);
                         if (addr != null)
-                            linphoneCore.InviteAddress(addr);
+                        {
+                            var callParams = linphoneCore.CreateCallParams(null);
+                            callParams.AddCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, Imei);
+                            callParams.AddCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, MyName);
+                            callParams.VideoEnabled = true;
+                            callParams.VideoDirection = MediaDirection.RecvOnly;
+                            callParams.AudioDirection = MediaDirection.SendRecv;
+                            linphoneCore.InviteAddressWithParams(addr, callParams);
+                            //linphoneCore.InviteAddress(addr);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -519,15 +538,19 @@ namespace LibLinphone.Android.LinphoneUtils
 
             Device.BeginInvokeOnMainThread(() =>
             {
+                Imei = imei;
+                MyName = myName;
                 try
                 {
+                    linphoneCore.ClearAllAuthInfo();
+                    linphoneCore.ClearProxyConfig();
                     var authInfo = Factory.Instance.CreateAuthInfo(username, null, password, null, null, domain);
                     linphoneCore.AddAuthInfo(authInfo);         
                     
                     var identity = Factory.Instance.CreateAddress($"sip:{username}@{domain}");
                     var proxyConfig = linphoneCore.CreateProxyConfig();
                     proxyConfig.Edit();
-                    
+                        
                     if (isMock)
                         identity = Factory.Instance.CreateAddress($"sip:sample@domain.tld");
                  
@@ -552,6 +575,9 @@ namespace LibLinphone.Android.LinphoneUtils
                         linphoneCore.Transports = transport;
                         proxyConfig.ServerAddr = $"<sip:{serverAddr};transport=tcp>";
                         proxyConfig.Route = $"<sip:{serverAddr};transport=tcp>";
+                        proxyConfig.Expires = LinphoneConstants.LINPHONE_PROXY_CFG_EXPIRE_TIME_SEC;
+                        proxyConfig.PublishEnabled = false;
+                        proxyConfig.ContactParameters = "+sip.instance=\"<urn:uuid:" + imei + ">\"";
                     }
                     
                     Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
@@ -561,8 +587,8 @@ namespace LibLinphone.Android.LinphoneUtils
                    
                     if (!isMock)
                     {
-                        proxyConfig.SetCustomHeader("Mobile-IMEI", imei);
-                        proxyConfig.SetCustomHeader("MyName", myName);
+                        proxyConfig.SetCustomHeader(LinphoneConstants.HEADER_MOBILE_IMEI, imei);
+                        proxyConfig.SetCustomHeader(LinphoneConstants.HEADER_DEVICE_NAME, myName);
                     }
     
                     proxyConfig.IdentityAddress = identity;
@@ -587,9 +613,9 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 try
                 {
-                        linphoneCore.ClearAllAuthInfo();
-                        linphoneCore.ClearProxyConfig();
-                        Init();
+                    linphoneCore.ClearAllAuthInfo();
+                    linphoneCore.ClearProxyConfig();
+                    Init();
                 }
                 catch (Exception ex)
                 {

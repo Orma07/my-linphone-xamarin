@@ -5,7 +5,6 @@ namespace LibLinphone.forms.Interfaces
     public interface ILinphoneManager
     {
         void SetViewCall(CallPCL call);
-        void SetViewCallOutgoing(CallPCL call);
         void AddLinphoneListenner(ILinphoneListener linphneListenner);
         void RemoveLinphoneListenner(ILinphoneListener linphneListenner);
         void RemoveAllListeners();
