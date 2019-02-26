@@ -82,5 +82,15 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             LinphoneEngine.UnRegister();
         }
+
+        public void Set2FGains()
+        {
+            LinphoneEngine.SetGain(LinphoneConstants.DEFAULT_PLAYBACK_GAIN_2F_DB, LinphoneConstants.DEFAULT_MIC_GAIN_2F_DB);
+        }
+
+        public void SetIpGains()
+        {
+            LinphoneEngine.SetGain(LinphoneConstants.DEFAULT_PLAYBACK_GAIN_IP_DB, LinphoneConstants.DEFAULT_MIC_GAIN_IP_DB);
+        }
     }
 }
