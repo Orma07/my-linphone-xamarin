@@ -46,11 +46,9 @@ namespace LibLinphone.Android.LinphoneUtils
         private LinphoneEngineAndroid()
         {
             EnableSpeaker = true;
-            Init();
-        }
 
-        private void Init()
-        {
+            
+
             Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
             Log($"Linphone version {Core.Version}");
 
@@ -59,7 +57,37 @@ namespace LibLinphone.Android.LinphoneUtils
             LinphoneListeners = new List<ILinphoneListener>();
             RegisterState = RegistrationState.None;
 
+            InitLinphoneCore();
             // Giving app context in CreateCore is mandatory for Android to be able to load grammars (and other assets) from AAR
+           
+            LogCodecs();
+
+            CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnCallStatsUpdated = OnStats;
+            CoreListener.OnRegistrationStateChanged = OnRegistration;
+
+            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
+
+            linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
+
+
+
+
+            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
+            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
+
+            // DON'T DELETE!
+            // linphoneCore.BeamformingMicDist = 184f;
+            // linphoneCore.BeamformingAngleDeg = 0;
+            // linphoneCore.BeamformingEnabled = true;
+
+            LinphoneCoreIterate();
+        }
+        
+
+        private void InitLinphoneCore()
+        {
             linphoneCore = Factory.Instance.CreateCore(CoreListener, RcPath, FactoryPath, IntPtr.Zero, LinphoneAndroid.AndroidContext);
 
             // Required to be able to store logs as file
@@ -74,38 +102,15 @@ namespace LibLinphone.Android.LinphoneUtils
             LinphoneWrapper.setNativeLogHandler();
             //LoggingService.Instance.Listener.OnLogMessageWritten = OnLog;
 #endif
-            
+
             linphoneCore.NetworkReachable = true;
             linphoneCore.RingDuringIncomingEarlyMedia = false;
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
-        
+
             linphoneCore.RootCa = CaPath;
             linphoneCore.VerifyServerCertificates(true);
 
-            LogCodecs();
-
-            CoreListener.OnCallStateChanged = OnCall;
-            CoreListener.OnCallStatsUpdated = OnStats;
-            CoreListener.OnRegistrationStateChanged = OnRegistration;
-
-            CoreListener.OnConfiguringStatus = OnConfigurationStatus;
-
-            linphoneCore.EchoCancellationEnabled = true;
-            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
-
-            
-
-
-            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
-            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
-
-            // DON'T DELETE!
-            // linphoneCore.BeamformingMicDist = 184f;
-            // linphoneCore.BeamformingAngleDeg = 0;
-            // linphoneCore.BeamformingEnabled = true;
-
-            LinphoneCoreIterate();
         }
 
         public void SetGain(float play, float mic)
@@ -115,7 +120,7 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.PlaybackGainDb = play;
         }
 
-        public bool AcceptCall()
+        public void AcceptCall()
         {
             Device.BeginInvokeOnMainThread(() =>
             {
@@ -647,24 +652,25 @@ namespace LibLinphone.Android.LinphoneUtils
             {
                 try
                 {
-                foreach (var proxyCfg in linphoneCore.ProxyConfigList)
-                {
+                    foreach (var proxyCfg in linphoneCore.ProxyConfigList)
+                    {
 
-                    Log($"Unregistering {proxyCfg.IdentityAddress}");
-                    proxyCfg.Edit();
-                    proxyCfg.RegisterEnabled = false;
-                    proxyCfg.Done();
+                        Log($"Unregistering {proxyCfg.IdentityAddress}");
+                        proxyCfg.Edit();
+                        proxyCfg.RegisterEnabled = false;
+                        proxyCfg.Done();
 
-                }
-                linphoneCore.ClearAllAuthInfo();
-                linphoneCore.ClearProxyConfig();
-                Init();
+                    }
+
+                    linphoneCore.ClearAllAuthInfo();
+                    linphoneCore.ClearProxyConfig();
+                    InitLinphoneCore();
                 }
                 catch (Exception ex)
                 {
                     Utils.TraceException(ex);
                 }
-
+            });
         }
 
         public void AddLinphoneListenner(ILinphoneListener linphneListenner)
