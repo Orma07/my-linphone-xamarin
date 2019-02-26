@@ -68,19 +68,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
             CoreListener.OnConfiguringStatus = OnConfigurationStatus;
 
-            linphoneCore.EchoCancellationEnabled = true;
-            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
-
-
-
-
-            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
-            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
-
-            // DON'T DELETE!
-            // linphoneCore.BeamformingMicDist = 184f;
-            // linphoneCore.BeamformingAngleDeg = 0;
-            // linphoneCore.BeamformingEnabled = true;
+          
 
             LinphoneCoreIterate();
         }
@@ -110,6 +98,17 @@ namespace LibLinphone.Android.LinphoneUtils
 
             linphoneCore.RootCa = CaPath;
             linphoneCore.VerifyServerCertificates(true);
+
+            linphoneCore.EchoCancellationEnabled = true;
+            linphoneCore.EchoCancellerFilterName = "MSWebRTCAEC";
+
+            //For MTS 4: beamforming_mic_dist_mm=74 beamforming_angle_deg=0 DON'T DELETE!
+            //For MTS 7: beamforming_mic_dist_mm =184 beamforming_angle_deg=0 default value in linphonerc DON'T DELETE!
+
+            // DON'T DELETE!
+            // linphoneCore.BeamformingMicDist = 184f;
+            // linphoneCore.BeamformingAngleDeg = 0;
+            // linphoneCore.BeamformingEnabled = true;
 
         }
 
