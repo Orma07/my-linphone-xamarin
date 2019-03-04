@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
@@ -475,9 +476,21 @@ namespace LibLinphone.Android.LinphoneUtils
             Log("LINPHONE - Global state changed -> " + gstate);
         }
 
-        private static void Log(string message)
+        private static void Log(string message,
+            [CallerMemberName] string callingMethod = "",
+            [CallerFilePath] string callingFilePath = "",
+            [CallerLineNumber] int callingFileLineNumber = 0)
         {
-            Debug.WriteLine($"LINPHONE MANAGER: {message}");
+            var lastIndexOfBackslash = callingFilePath.LastIndexOf('\\');
+            if(lastIndexOfBackslash == -1)
+                lastIndexOfBackslash = callingFilePath.LastIndexOf('/');
+            if (lastIndexOfBackslash > 0)
+            {
+                var className = callingFilePath.Substring(lastIndexOfBackslash + 1).Split('.')[0];
+                message = $"{className}.{callingMethod}():{callingFileLineNumber} - {message}";
+            }
+
+            Debug.WriteLine(message);
         }
 
         public void LinphoneCoreIterate()
