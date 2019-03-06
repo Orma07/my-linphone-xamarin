@@ -487,7 +487,7 @@ namespace LibLinphone.Android.LinphoneUtils
             if (lastIndexOfBackslash > 0)
             {
                 var className = callingFilePath.Substring(lastIndexOfBackslash + 1).Split('.')[0];
-                message = $"{className}.{callingMethod}():{callingFileLineNumber} - {message}";
+                message = $"[{className}.{callingMethod}():{callingFileLineNumber}] - D - {message}";
             }
 
             Debug.WriteLine(message);
