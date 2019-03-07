@@ -11,7 +11,32 @@ namespace LibLinphone.Android.LinphoneUtils
             [CallerFilePath] string callingFilePath = "",
             [CallerLineNumber] int callingFileLineNumber = 0)
         {
-            Debug.WriteLine($"WARNING - Managed Exception: {callingMethod} at line {callingFileLineNumber} in file {callingFilePath}\n{ex.Message}\n{ex.StackTrace}");
+            var className = callingFilePath;
+            
+            var lastIndexOfBackslash = callingFilePath.LastIndexOf('\\');
+            if(lastIndexOfBackslash == -1)
+                lastIndexOfBackslash = callingFilePath.LastIndexOf('/');
+            if (lastIndexOfBackslash > 0)
+                className = callingFilePath.Substring(lastIndexOfBackslash + 1).Split('.')[0];
+            
+            Log($"Managed Exception in {className}.{callingMethod}:{callingFileLineNumber} -> {ex.Message}\n{ex.StackTrace}");
+        }
+
+        public static void Log(string message,
+            [CallerMemberName] string callingMethod = "",
+            [CallerFilePath] string callingFilePath = "",
+            [CallerLineNumber] int callingFileLineNumber = 0)
+        {
+            var lastIndexOfBackslash = callingFilePath.LastIndexOf('\\');
+            if(lastIndexOfBackslash == -1)
+                lastIndexOfBackslash = callingFilePath.LastIndexOf('/');
+            if (lastIndexOfBackslash > 0)
+            {
+                var className = callingFilePath.Substring(lastIndexOfBackslash + 1).Split('.')[0];
+                message = $"[{className}.{callingMethod}:{callingFileLineNumber}] - D - {message}";
+            }
+
+            Debug.WriteLine(message);
         }
     }
 }
