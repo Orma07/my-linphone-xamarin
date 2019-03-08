@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Android;
 using Android.App;
@@ -47,10 +48,9 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             EnableSpeaker = true;
 
-            
 
-            Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
-            Log($"Linphone version {Core.Version}");
+            Utils.Log("C# WRAPPER=" + LinphoneWrapper.VERSION);
+            Utils.Log($"Linphone version {Core.Version}");
 
             CoreListener = Factory.Instance.CreateCoreListener();
             CoreListener.OnGlobalStateChanged = OnGlobal;
@@ -114,7 +114,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
         public void SetGain(float play, float mic)
         {
-            Log($"Setting gains: MIC = {mic}, PLAYBACK = {play}");
+            Utils.Log($"Setting gains: MIC = {mic}, PLAYBACK = {play}");
             linphoneCore.MicGainDb = mic;
             linphoneCore.PlaybackGainDb = play;
         }
@@ -199,7 +199,7 @@ namespace LibLinphone.Android.LinphoneUtils
                 }
                 catch (Exception ex)
                 {
-                    Log($"CallSip()_Android - {username} is invalid username");
+                    Utils.Log($"CallSip()_Android - {username} is invalid username");
                     Utils.TraceException(ex);
                 }
             });
@@ -225,7 +225,7 @@ namespace LibLinphone.Android.LinphoneUtils
                         currentCall.AcceptEarlyMediaWithParams(param);
                     }
                     else
-                        Log($"SetViewCall()_Android, call from: {call.UsernameCaller} is not call in linphoneCore");
+                        Utils.Log($"SetViewCall()_Android, call from: {call.UsernameCaller} is not call in linphoneCore");
                 }
             });
         }
@@ -249,7 +249,7 @@ namespace LibLinphone.Android.LinphoneUtils
                         linphoneCore.UpdateCall(currentCall, param);
                     }
                     else
-                        Log($"SetViewCallOutgoing()_Android, call from: {call.UsernameCaller} is not call in linphoneCore");
+                        Utils.Log($"SetViewCallOutgoing()_Android, call from: {call.UsernameCaller} is not call in linphoneCore");
                 }
             });
         }
@@ -284,7 +284,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     if (nRetryTerminateCalls < 3)
                         TerminateAllCalls();
                     else
-                        Log("terminate call failed after 3 attempts");
+                        Utils.Log("terminate call failed after 3 attempts");
                 }
             });
         }
@@ -364,12 +364,12 @@ namespace LibLinphone.Android.LinphoneUtils
         
         private void OnConfigurationStatus(Core lc, ConfiguringState status, string message)
         {
-            Log($"OnConfiguration, status: {status}");
+            Utils.Log($"OnConfiguration, status: {status}");
         }
 
         private void OnStats(Core lc, Call call, CallStats stats)
         {
-            Log("Call stats: " + stats.DownloadBandwidth + " kbits/s / " + stats.UploadBandwidth + " kbits/s");
+            Utils.Log("Call stats: " + stats.DownloadBandwidth + " kbits/s / " + stats.UploadBandwidth + " kbits/s");
         }
 
         private void SaveLastCall(Call lcall, CallState state)
@@ -453,7 +453,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     if (!pt.Enabled())
                         pt.Enable(true);
 
-                    Log($"VIDEO - Payload: {pt.MimeType}/{pt.ClockRate}/{pt.NormalBitrate}, Enabled: {pt.Enabled().ToString()}, IsUsable {pt.IsUsable}");
+                    Utils.Log($"VIDEO - Payload: {pt.MimeType}/{pt.ClockRate}/{pt.NormalBitrate}, Enabled: {pt.Enabled().ToString()}, IsUsable {pt.IsUsable}");
                 }
                 
                 foreach (var pt in audioCodecs)
@@ -461,7 +461,7 @@ namespace LibLinphone.Android.LinphoneUtils
                     if (!pt.Enabled())
                         pt.Enable(true);
 
-                    Log($"AUDIO - Payload: {pt.MimeType}/{pt.ClockRate}/{pt.NormalBitrate}, Enabled: {pt.Enabled().ToString()}, IsUsable {pt.IsUsable}");
+                    Utils.Log($"AUDIO - Payload: {pt.MimeType}/{pt.ClockRate}/{pt.NormalBitrate}, Enabled: {pt.Enabled().ToString()}, IsUsable {pt.IsUsable}");
                 }
             }
             catch (Exception ex)
@@ -472,12 +472,7 @@ namespace LibLinphone.Android.LinphoneUtils
 
         private void OnGlobal(Core lc, GlobalState gstate, string message)
         {
-            Log("LINPHONE - Global state changed -> " + gstate);
-        }
-
-        private static void Log(string message)
-        {
-            Debug.WriteLine($"LINPHONE MANAGER: {message}");
+            Utils.Log("LINPHONE - Global state changed -> " + gstate);
         }
 
         public void LinphoneCoreIterate()
@@ -516,12 +511,12 @@ namespace LibLinphone.Android.LinphoneUtils
         {
             if (config?.FindAuthInfo() != null)
             {
-                Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, " +
+                Utils.Log($"Register, state - {state}, Username - {config.FindAuthInfo().Username}, " +
                     $"domain - {config.Domain}, route - {config.Route}, message - {message}");
             }
             else
             {
-                Log($"Register, state - {state}, message - {message}");
+                Utils.Log($"Register, state - {state}, message - {message}");
                // Init();
             }
             
@@ -613,8 +608,8 @@ namespace LibLinphone.Android.LinphoneUtils
                         proxyConfig.PublishEnabled = false;
                         proxyConfig.ContactParameters = "+sip.instance=\"<urn:uuid:" + imei + ">\"";
                     }
-                    
-                    Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
+
+                    Utils.Log($"Transports, TCP: {linphoneCore.Transports.TcpPort}, TLS: {linphoneCore.Transports.TlsPort}, UDP: {linphoneCore.Transports.UdpPort}");
                     identity.Username = username;
                     identity.Domain = domain;
                     //identity.Password = password;
@@ -649,8 +644,7 @@ namespace LibLinphone.Android.LinphoneUtils
                 {
                     foreach (var proxyCfg in linphoneCore.ProxyConfigList)
                     {
-
-                        Log($"Unregistering {proxyCfg.IdentityAddress}");
+                        Utils.Log($"Unregistering {proxyCfg.IdentityAddress}");
                         proxyCfg.Edit();
                         proxyCfg.RegisterEnabled = false;
                         proxyCfg.Done();
