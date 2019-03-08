@@ -19,7 +19,7 @@ namespace LibLinphone.Android.LinphoneUtils
             if (lastIndexOfBackslash > 0)
                 className = callingFilePath.Substring(lastIndexOfBackslash + 1).Split('.')[0];
             
-            Log($"Managed Exception in {className}.{callingMethod}:{callingFileLineNumber} -> {ex.Message}\n{ex.StackTrace}");
+            Log($"Managed Exception in {className}.{callingMethod}:{callingFileLineNumber} -> {ex}");
         }
 
         public static void Log(string message,
