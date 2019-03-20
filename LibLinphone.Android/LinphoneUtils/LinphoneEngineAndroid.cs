@@ -63,6 +63,7 @@ namespace LibLinphone.Android.LinphoneUtils
             LogCodecs();
 
             CoreListener.OnCallStateChanged = OnCall;
+            CoreListener.OnMessageReceived = ManageMessages;
             CoreListener.OnCallStatsUpdated = OnStats;
             CoreListener.OnRegistrationStateChanged = OnRegistration;
 
@@ -72,7 +73,25 @@ namespace LibLinphone.Android.LinphoneUtils
 
             LinphoneCoreIterate();
         }
-        
+
+        private void ManageMessages(Core lc, ChatRoom room, ChatMessage message)
+        {
+            lock (LinphoneListeners)
+            {
+                for (var i = 0; i < LinphoneListeners.Count; i++)
+                {
+                    try
+                    {
+                        var listener = LinphoneListeners[i];
+                        listener.OnMessaggeRecived(message.ToAddress.Username, message.Text, message.GetCustomHeader("Panda"), message.GetCustomHeader("Koala"));
+                    }
+                    catch (Exception ex)
+                    {
+                        Utils.TraceException(ex);
+                    }
+                }
+            }
+        }
 
         private void InitLinphoneCore()
         {
