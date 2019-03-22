@@ -215,3 +215,7 @@ FakesAssemblies/
 **/*.Server/GeneratedArtifacts
 **/*.Server/ModelManifest.xml
 _Pvt_Extensions
+
+LiblinphoneAar/LiblinphoneAar\.csproj
+LibLinphone\.Android/Resources/Resource\.Designer\.cs
+LibLinphone\.Android/LibLinphone\.Android\.csproj
