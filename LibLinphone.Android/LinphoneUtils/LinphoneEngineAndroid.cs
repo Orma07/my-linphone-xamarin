@@ -410,6 +410,15 @@ namespace LibLinphone.Android.LinphoneUtils
                 if(state == CallState.IncomingReceived || state == CallState.OutgoingRinging)
                 {
                     //linphoneCore.StartEchoCancellerCalibration();
+                    switch (state)
+                    {
+                        case CallState.IncomingReceived:
+                            Utils.Log($"Call from: {lcall.RemoteAddress.Username}");
+                            break;
+                        case CallState.OutgoingRinging:
+                            Utils.Log($"Call to: {lcall.RemoteAddress.Username}");
+                            break;
+                    }
                     if (EnableSpeaker)
                         EnableAndroidSpeaker();
                 }
