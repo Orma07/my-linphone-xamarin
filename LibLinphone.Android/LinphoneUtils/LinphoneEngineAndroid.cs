@@ -596,8 +596,8 @@ namespace LibLinphone.Android.LinphoneUtils
                 MyName = myName;
                 try
                 {
-                    linphoneCore.ClearAllAuthInfo();
-                    linphoneCore.ClearProxyConfig();
+                    UnRegister(false);
+                    
                     var authInfo = Factory.Instance.CreateAuthInfo(username, null, password, null, null, domain);
                     linphoneCore.AddAuthInfo(authInfo);         
                     
@@ -661,7 +661,7 @@ namespace LibLinphone.Android.LinphoneUtils
             });
         }
 
-        public void UnRegister()
+        public void UnRegister(bool initCore = true)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
@@ -673,12 +673,12 @@ namespace LibLinphone.Android.LinphoneUtils
                         proxyCfg.Edit();
                         proxyCfg.RegisterEnabled = false;
                         proxyCfg.Done();
-
                     }
 
                     linphoneCore.ClearAllAuthInfo();
                     linphoneCore.ClearProxyConfig();
-                    InitLinphoneCore();
+                    if(initCore)
+                        InitLinphoneCore();
                 }
                 catch (Exception ex)
                 {
