@@ -111,7 +111,7 @@ namespace LibLinphone.Android.LinphoneUtils
             linphoneCore.RingDuringIncomingEarlyMedia = false;
             linphoneCore.VideoCaptureEnabled = false;
             linphoneCore.VideoDisplayEnabled = true;
-            linphoneCore.RingerDevice = null; //remove the linphone ringer as we use our custom ringer
+            linphoneCore.Ring = null; //disable the local ringtone as we use our ringtone
             linphoneCore.RootCa = CaPath;
             linphoneCore.VerifyServerCertificates(true);
 
