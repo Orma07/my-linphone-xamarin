@@ -3998,8 +3998,8 @@ namespace LibLinphone.Android
 			// aapt resource value: 0x7f090025
 			public static int abc_toolbar_collapse_description = 2131296293;
 			
-			// aapt resource value: 0x7f09003d
-			public static int app_name = 2131296317;
+			// aapt resource value: 0x7f09003f
+			public static int app_name = 2131296319;
 			
 			// aapt resource value: 0x7f090033
 			public static int appbar_scrolling_view_behavior = 2131296307;
@@ -4010,8 +4010,14 @@ namespace LibLinphone.Android
 			// aapt resource value: 0x7f090035
 			public static int character_counter_pattern = 2131296309;
 			
+			// aapt resource value: 0x7f09003e
+			public static int hello = 2131296318;
+			
 			// aapt resource value: 0x7f09003c
-			public static int hello = 2131296316;
+			public static int linphone_sdk_branch = 2131296316;
+			
+			// aapt resource value: 0x7f09003d
+			public static int linphone_sdk_version = 2131296317;
 			
 			// aapt resource value: 0x7f090000
 			public static int mr_button_content_description = 2131296256;

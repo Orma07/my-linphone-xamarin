@@ -238,7 +238,14 @@ namespace LibLinphone.Android.LinphoneUtils
                         param.VideoDirection = MediaDirection.RecvOnly;
                         param.AudioDirection = MediaDirection.SendRecv;
 
-                        currentCall.AcceptEarlyMediaWithParams(param);
+                        try
+                        {
+                            currentCall.AcceptEarlyMediaWithParams(param);
+                        }
+                        catch (Exception e)
+                        {
+                            Utils.TraceException(e);
+                        }
                     }
                     else
                         Utils.Log($"SetViewCall()_Android, call from: {call.UsernameCaller} is not call in linphoneCore");
